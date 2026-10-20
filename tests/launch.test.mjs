@@ -58,7 +58,7 @@ async function events(t, url) {
   };
 }
 
-test('A/B/C WGT commands pass through PC B to the console', { timeout: 5000 }, async t => {
+test('Game WGT commands pass through PC B to the console', { timeout: 5000 }, async t => {
   const { aUrl, bUrl } = await setup(t);
   const next = await events(t, aUrl);
   assert.deepEqual(await next(), { app: null });

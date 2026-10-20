@@ -1,12 +1,12 @@
-# A게임 WGT 요구사항
+# Apex Racing WGT 요구사항
 
 | 항목 | 값 |
 |---|---|
-| 화면 이름 | A게임 |
+| 화면 이름 | Apex Racing |
 | application ID | `R7kP2mN9vQ.ApexRacing` |
 | package ID | `R7kP2mN9vQ` |
 | 서명 전 산출물 | `dist/unsigned/game-a.wgt` |
-| PC A 표시 | A게임, ApexRacing 데모 화면 |
+| PC A 표시 | Apex Racing, ApexRacing 데모 화면 |
 
 게임과 식별자는 이 프로젝트의 가상 값이다.
 
@@ -20,7 +20,13 @@
 {"app":"R7kP2mN9vQ.ApexRacing"}
 ```
 
-PC B는 요청 시점에 연결된 모든 PC A에 WebSocket으로 같은 앱 전환 명령을 보낸다. A가 홈이나 다른 게임을 표시 중이어도 A게임으로 바뀐다. PC A 홈에서 직접 게임을 선택하면 해당 A만 전환된다.
+PC B는 요청 시점에 연결된 모든 PC A에 WebSocket으로 같은 앱 전환 명령을 보낸다. A가 홈이나 다른 게임을 표시 중이어도 Apex Racing으로 바뀐다. PC A 홈에서 직접 게임을 선택하면 해당 A만 전환된다.
+
+## 화면과 앱 아이콘
+
+WGT 이름과 콘솔 표시 이름은 위 게임 이름을 사용한다. WGT manifest의 `icon.png`에는 이 게임의 전용 117×117 PNG를 넣는다. 콘솔 홈에는 게임별 배경과 아이콘을 표시하고, 딥링크 수신 후 약 2.2초 모의 로딩을 거쳐 타이틀 메뉴를 연다. 로딩 중 다른 요청이 오면 이전 전환을 취소하고 마지막 게임을 표시한다.
+
+타이틀의 시작 메뉴는 데모 안내를 표시하고 설정 메뉴는 화면 전환 효과를 제어한다. WGT 자체에는 별도 로딩 대기 시간을 추가하지 않으며 기존 HTTP/App Control 콜백 후 종료 규칙을 유지한다.
 
 ## App Control
 
@@ -44,7 +50,7 @@ PC B 주소는 시작할 때 입력하고 `config.local.json`에 저장한다. B
 ## 확인 기준
 
 - HTTP 본문의 `app`이 정확히 일치한다.
-- B에 연결된 여러 A가 모두 A게임으로 바뀐다.
+- B에 연결된 여러 A가 모두 Apex Racing으로 바뀐다.
 - A의 Esc 또는 홈 버튼은 그 A만 홈으로 돌린다.
 - App Control에 위 대상과 operation, 빈 데이터가 전달된다.
 - HTTP나 App Control 실패에도 다른 호출과 자체 종료 흐름이 진행된다.

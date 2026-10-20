@@ -2,6 +2,7 @@
   var config = window.APP_CONFIG;
   var status = document.getElementById('status');
   document.getElementById('name').textContent = config.name;
+  document.title = config.name;
   var finished = {}, errors = [], exited = false;
   var request;
 

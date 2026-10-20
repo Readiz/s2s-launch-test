@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { apps } from './config.mjs';
 
 export function startupGuide(role, config, root) {
   const b = config.pcBUrl || `http://127.0.0.1:${config.pcBPort}`;
@@ -24,7 +25,7 @@ export function startupGuide(role, config, root) {
       '1. 각 PC A에서 start-pc-a.cmd를 실행하고 위 B 주소를 입력하세요.',
       '2. A 실행 창에 표시되는 콘솔 주소를 그 A의 브라우저에서 여세요.',
       '3. 아래 미리보기 중 하나를 브라우저에서 열면 연결된 모든 A의 앱이 바뀝니다.',
-      ...['a', 'b', 'c'].map(key => `   ${key.toUpperCase()}게임: ${b}/tv/game-${key}/`),
+      ...apps.map(app => `   ${app.name}: ${b}/tv/game-${app.key}/`),
       '',
       `연결된 A 개수 확인: ${b}/status`,
       `TV 앱 패키지(서명 전): ${path.join(root, 'dist', 'unsigned')}`,
@@ -42,7 +43,7 @@ export function localDemoGuide(config) {
     '', '=== 한 PC에서 A + B 실행 중 ===',
     `1. 콘솔 화면을 먼저 열어 두세요: http://localhost:${config.pcAPort}`,
     '2. 다른 브라우저 탭에서 아래 주소를 열면 콘솔의 게임이 바뀝니다.',
-    ...['a', 'b', 'c'].map(key => `   ${key.toUpperCase()}게임: http://localhost:${config.pcBPort}/tv/game-${key}/`),
+    ...apps.map(app => `   ${app.name}: http://localhost:${config.pcBPort}/tv/game-${app.key}/`),
     '3. 콘솔에서는 방향키 + Enter로 실행, Esc로 홈 복귀, F11로 전체화면',
     '', 'A는 이 PC의 B에 루프백으로 자동 연결했습니다. IP 입력은 필요 없습니다.',
     '미리보기의 HDMI 미지원 안내는 PC 브라우저에 Tizen API가 없어서 표시됩니다.',

@@ -64,9 +64,9 @@ operation은 비교용 식별자다. 이 주소에 HTTP 접속하지 않는다. 
 
 | 호출자 | application ID |
 |---|---|
-| A게임 WGT | `R7kP2mN9vQ.ApexRacing` |
-| B게임 WGT | `F3bT8xL4cW.ForestQuest` |
-| C게임 WGT | `O6nH1sD5aZ.OrbitArena` |
+| Apex Racing WGT | `R7kP2mN9vQ.ApexRacing` |
+| Forest Quest WGT | `F3bT8xL4cW.ForestQuest` |
+| Orbit Arena WGT | `O6nH1sD5aZ.OrbitArena` |
 
 세 앱은 모두 동일한 HDMI 활성화 동작을 요청한다. 호출자 ID가 비어 있거나 목록에 없으면 `CALLER_NOT_ALLOWED`, operation이 다르면 `UNSUPPORTED_OPERATION`으로 거부한다. URI, MIME, category는 `null` 또는 SDK가 반환한 빈 문자열만 허용한다. extra data는 읽거나 동작 분기에 사용하지 않는다. 배포 정책이 요구하는 서명 검증은 별도로 적용한다.
 
@@ -286,14 +286,14 @@ WGT 설정은 다음과 같다. `config.local.json`은 WGT 빌드 PC용이며 C#
 
 | 번호 | 조건 | 기대 결과 |
 |---|---|---|
-| 1 | 내부 앱 종료 상태에서 A WGT 실행 | 앱 시작과 요청 수신, 콘솔 HDMI 표시, 연결된 PC A들은 A게임으로 전환 |
+| 1 | 내부 앱 종료 상태에서 A WGT 실행 | 앱 시작과 요청 수신, 콘솔 HDMI 표시, 연결된 PC A들은 Apex Racing으로 전환 |
 | 2 | 내부 앱 실행 중 B/C WGT 실행 | 매 요청 수신, 모든 PC A의 앱 전환, 내부 서비스는 동일한 HDMI 활성화 수행 |
 | 3 | 실제 App Control 데이터 확인 | 빈 배열. HDMI 포트/게임 ID/PC 주소 없음 |
 | 4 | WGT가 호출 콜백 직후 종료 | 서비스 작업 계속, HDMI 상태 유지, WGT 재실행 없음 |
 | 5 | PC A를 켜 둔 채 CEC 비지원/비활성 상태 | 경고와 별개로 HDMI 입력 활성화 |
 | 6 | CEC 지원 콘솔이 대기 상태 | wake 시도와 실제 전원 켜짐을 각각 확인. PC 데모와 별도 판정 |
 | 7 | 이미 콘솔 HDMI 표시 중 | 불필요한 입력 토글이나 재전환 없음 |
-| 8 | A/B/C WGT 요청 연속 수신 | 처리 중 하드웨어 작업 하나, 추가 요청 병합 |
+| 8 | 세 게임 WGT 요청 연속 수신 | 처리 중 하드웨어 작업 하나, 추가 요청 병합 |
 | 9 | 콘솔 연결 대상을 결정하지 못함 | TARGET_UNAVAILABLE, 임의의 입력으로 이동하지 않음 |
 | 10 | 다른 operation/미허용 호출자 | 거부, 기존 TV 입력 유지 |
 | 11 | PC B 연결 끊김/일부 A 실패 | HTTP 결과와 별개로 TV의 HDMI 요청 처리 |

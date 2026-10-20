@@ -1,24 +1,54 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Console · 홈</title><link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"></head>
-<body>
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Console · 라이브러리</title><link id="favicon" rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-phase="home">
   <header>
-    <div class="brand"><span class="brand-icon" aria-hidden="true">▦</span> CONSOLE <small>DEMO</small></div>
+    <a id="brand-home" class="brand" href="/" aria-label="콘솔 홈"><span aria-hidden="true">◈</span> CONSOLE</a>
     <div class="tools"><span id="connection" role="status">연결 중</span><button id="fullscreen" type="button" title="전체화면 (F11)" aria-label="전체화면">⛶</button></div>
   </header>
   <main>
-    <section id="home" aria-labelledby="home-title">
-      <div class="section-head"><h1 id="home-title">내 게임</h1><span>라이브러리 · 3개</span></div>
+    <section id="home" aria-label="게임 라이브러리">
+      <div class="home-hero">
+        <img id="featured-art" class="hero-art" alt="">
+        <div class="hero-shade"></div>
+        <div class="featured-copy"><span id="featured-genre" class="eyebrow"></span><h1 id="featured-name"></h1><p id="featured-description"></p><button id="featured-launch" class="primary compact" type="button">플레이 <span aria-hidden="true">↗</span></button></div>
+      </div>
+      <div class="section-head"><h2>내 게임</h2><span>설치됨 <strong>3</strong></span></div>
       <div id="library" class="library" aria-label="게임 선택"></div>
-      <p class="hint"><kbd>←</kbd><kbd>→</kbd> 선택 <span>·</span> <kbd>Enter</kbd> 실행</p>
+      <p class="hint"><kbd>←</kbd><kbd>→</kbd> 게임 선택 <span></span><kbd>Enter</kbd> 플레이</p>
     </section>
-    <section id="app-screen" aria-labelledby="app-name" hidden>
-      <div class="app-toolbar"><button id="back-home" type="button">← 홈 <kbd>Esc</kbd></button><span id="app-id"></span></div>
-      <div class="app-content"><div id="app-letter" class="app-letter" aria-hidden="true"></div><h1 id="app-name"></h1><p id="app-title"></p><span class="running"><span aria-hidden="true">●</span> 실행 중</span></div>
+    <section id="app-screen" aria-label="게임" hidden>
+      <img id="game-art" class="hero-art" alt=""><div class="game-shade"></div>
+      <button id="back-home" class="quiet back" type="button">← 콘솔 홈 <kbd>Esc</kbd></button>
+      <div id="loading-screen" role="status" aria-live="polite" hidden>
+        <img id="loading-icon" class="loading-icon" alt=""><h1 id="loading-name"></h1>
+        <p id="loading-status">게임을 준비하고 있습니다</p>
+        <div class="loading-track" role="progressbar" aria-label="게임 준비 중"><span></span></div>
+      </div>
+      <div id="title-screen" hidden>
+        <div class="title-copy"><img id="title-icon" class="title-icon" alt=""><p id="game-genre" class="eyebrow"></p><h1 id="game-name" class="game-title"></h1><p id="game-tagline"></p>
+          <nav id="game-menu" aria-label="게임 메뉴">
+            <button id="start-game" type="button" class="menu-item primary"></button>
+            <button id="game-options" type="button" class="menu-item">설정</button>
+            <button id="menu-home" type="button" class="menu-item">콘솔로 돌아가기</button>
+          </nav>
+        </div>
+        <div class="title-bottom"><span id="game-world"></span><span>DEMO EDITION</span></div>
+      </div>
     </section>
     <p id="error" role="alert" hidden></p>
   </main>
-  <footer><span id="context">콘솔 홈</span><span>TV 딥링크로도 앱을 실행할 수 있습니다.</span></footer>
-  <script src="apps.js"></script><script src="player.js"></script>
+  <footer><span id="context">게임 라이브러리</span><span id="footer-hint">플레이할 게임을 선택하세요</span></footer>
+  <dialog id="game-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-head"><h2 id="dialog-title"></h2><button id="dialog-close" class="quiet" type="button" aria-label="닫기">×</button></div>
+    <div id="demo-panel" hidden><p id="demo-scene" class="eyebrow"></p><p id="demo-description"></p><p class="muted">이 데모는 게임 실행과 타이틀 화면까지 재현합니다.</p></div>
+    <div id="options-panel" hidden><label><input id="motion" type="checkbox" checked> 화면 전환 효과</label><p class="muted">이 콘솔 브라우저에 적용됩니다.</p></div>
+    <button id="dialog-return" class="primary compact" type="button">타이틀로 돌아가기</button>
+  </dialog>
+  <script src="apps.js"></script><script type="module" src="player.js"></script>
 </body>
 </html>

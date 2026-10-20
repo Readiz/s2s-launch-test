@@ -1,0 +1,32 @@
+[
+  {
+    "asset": "apex-racing-cover",
+    "prompt": "Use case: stylized-concept. Create a premium original fictional console racing game key art for Apex Racing, a wide 16:9 landscape background, target 1920x1080. A low, unbranded cobalt-blue sports coupe racing on a sweeping coastal mountain road at sunset, dramatic rear three-quarter view, wet tarmac reflecting amber sun, subtle speed spray, mountains and ocean, polished cinematic realistic game render. Put the recognizable car on the right half and leave the left third comparatively dark and uncluttered for HTML title/menu overlay. Strong readable silhouette that also works on a cropped console library card. No text, no letters, no UI, no logos, no real automobile brand or watermark. Full bleed, opaque.",
+    "tool": "image_gen (built-in)"
+  },
+  {
+    "asset": "forest-quest-cover",
+    "prompt": "Use case: stylized-concept. Create premium original fictional console adventure game key art for Forest Quest, a wide 16:9 landscape background, target 1920x1080. A tiny cloaked adventurer carrying a warm lantern stands on an ancient mossy stone path beneath towering emerald forest trees, a luminous ancient stone gateway deeper into the forest, shafts of golden dawn light, ferns and glowing fireflies, rich painterly 3D game art with inviting magical depth. Put the adventurer and gateway on the right half, preserve a darker quiet left third for HTML title/menu overlay. Rich emerald, jade and warm gold palette. No text, no letters, no UI, no logos, no existing game characters, no watermark. Full bleed, opaque.",
+    "tool": "image_gen (built-in)"
+  },
+  {
+    "asset": "orbit-arena-cover",
+    "prompt": "Use case: stylized-concept. Create premium original fictional console sci-fi arena game key art for Orbit Arena, a wide 16:9 landscape background, target 1920x1080. Sleek original spacecraft sweeping through an immense luminous orbital ring arena above the curved surface of a planet, luminous violet and cyan ring structures, starfield, restrained energy trails, high contrast atmospheric cinematic space game render. Compose the detailed spacecraft and orbital arena on right half with a dark quiet left third for HTML title/menu overlay. No text, no letters, no UI, no logos, no recognizable franchise spacecraft, no watermark. Full bleed, opaque.",
+    "tool": "image_gen (built-in)"
+  },
+  {
+    "asset": "apex-racing-icon",
+    "prompt": "Use case: logo-brand. Square original app icon for a fictional console game Apex Racing. A striking cobalt blue sports car nose with white LED headlights, paired with a sweeping silver racetrack apex arc, rendered as a simple polished dimensional game emblem on dark navy. Strong central silhouette readable at 117x117 pixels, generous 14 percent safe inset around emblem, sharp confident forms, limited blue silver white palette. Entire image is one opaque square icon with full bleed dark background. No text, no letters, no real car brand, no UI, no outer mockup, no watermark. Target 1024x1024.",
+    "tool": "image_gen (built-in)"
+  },
+  {
+    "asset": "forest-quest-icon",
+    "prompt": "Use case: logo-brand. Square original app icon for a fictional fantasy console game Forest Quest. One luminous golden lantern hanging inside a stylized emerald leaf-shaped stone arch, subtle magical glow, dark forest green full bleed background, polished dimensional illustration. A single bold central emblem, simple silhouette readable at 117x117 pixels, generous 14 percent safe inset, jade emerald and gold palette. Entire image is one opaque square icon. No text, no letters, no UI, no outer mockup, no watermark. Target 1024x1024.",
+    "tool": "image_gen (built-in)"
+  },
+  {
+    "asset": "orbit-arena-icon",
+    "prompt": "Use case: logo-brand. Square original app icon for a fictional sci-fi console game Orbit Arena. One sleek silver triangular starfighter silhouette crossing a luminous violet orbital ring with a cyan energy core, dark indigo full bleed background. Polished dimensional emblem, simple bold forms readable at 117x117 pixels, generous 14 percent safe inset, violet cyan silver palette. Entire image is one opaque square icon. No text, no letters, no recognizable franchise ship, no UI, no outer mockup, no watermark. Target 1024x1024.",
+    "tool": "image_gen (built-in)"
+  }
+]

@@ -14,9 +14,9 @@ TV WGT와 향후 PC C 리모컨은 PC B의 HTTP 인터페이스를 호출한다.
 
 | 게임 | app |
 |---|---|
-| A게임 | `R7kP2mN9vQ.ApexRacing` |
-| B게임 | `F3bT8xL4cW.ForestQuest` |
-| C게임 | `O6nH1sD5aZ.OrbitArena` |
+| Apex Racing | `R7kP2mN9vQ.ApexRacing` |
+| Forest Quest | `F3bT8xL4cW.ForestQuest` |
+| Orbit Arena | `O6nH1sD5aZ.OrbitArena` |
 
 콘솔 ID나 IP를 요청에 넣지 않는다. 요청 시점에 WebSocket이 열린 모든 A가 대상이다. 다음은 두 A가 모두 처리한 응답이다.
 
@@ -24,7 +24,7 @@ TV WGT와 향후 PC C 리모컨은 PC B의 HTTP 인터페이스를 호출한다.
 {"ok":true,"app":"R7kP2mN9vQ.ApexRacing","total":2,"delivered":2,"failed":0}
 ```
 
-`total`은 대상 A 수이며 브라우저 탭 수가 아니다. `delivered`는 A 서버가 로컬 브라우저 연결에 이벤트를 전달하고 성공 응답을 보낸 수다. 실제 렌더링 완료나 게임 프로세스 실행, HDMI 전환 완료는 확인하지 않는다.
+`total`은 대상 A 수이며 브라우저 탭 수가 아니다. `delivered`는 A 서버가 로컬 브라우저 연결에 이벤트를 전달하고 성공 응답을 보낸 수다. 실제 렌더링 완료나 게임 프로세스 실행, HDMI 전환 완료는 확인하지 않는다. HTTP 응답 뒤에도 브라우저의 약 2.2초 모의 로딩은 계속될 수 있다.
 
 | HTTP 상태 | 의미 |
 |---|---|

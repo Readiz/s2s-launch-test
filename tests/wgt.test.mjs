@@ -11,7 +11,7 @@ const launcher=await readFile(new URL('../tv/launcher.js',import.meta.url),'utf8
 function run() {
   const events=[],nodes={name:{},status:{}};
   let xhr,success,failure,deadline,exits=0;
-  const config={app:'R7kP2mN9vQ.ApexRacing',name:'A게임',pcBUrl:'http://pc-b.test:4100',hdmi:defaults.hdmi};
+  const config={app:'R7kP2mN9vQ.ApexRacing',name:'Apex Racing',pcBUrl:'http://pc-b.test:4100',hdmi:defaults.hdmi};
   const context={
     APP_CONFIG:config,document:{getElementById:id=>nodes[id]},location:{protocol:'file:'},
     console:{error:()=>{}},setTimeout:fn=>{deadline=fn;return 1;},clearTimeout:()=>{},
