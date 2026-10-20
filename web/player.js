@@ -3,6 +3,7 @@ const $ = id => document.getElementById(id);
 const apps = window.DEMO_APPS;
 let selected = 0, activeApp = null, busy = false;
 let booting = true, pendingApp = null;
+let gameFullscreen = false;
 let artworkGeneration = 0;
 const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const dialog = $('game-dialog');
@@ -77,11 +78,24 @@ function render({ phase, app }) {
     }
   }
   if (phase === 'ready') $('start-game').focus({ preventScroll: true });
-  else $('back-home').focus({ preventScroll: true });
+  else $('loading-screen').focus({ preventScroll: true });
 }
 const launchState = createLaunchState(render);
+function enterGameFullscreen() {
+  if (document.fullscreenElement || !document.fullscreenEnabled) return;
+  document.documentElement.requestFullscreen()
+    .then(() => { gameFullscreen = true; })
+    .catch(() => {}); // Embedded browsers can deny native fullscreen; the game still fills the viewport.
+}
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement && gameFullscreen) {
+    gameFullscreen = false;
+    if (activeApp) send('/home');
+  }
+});
 async function send(route, body) {
   if (booting || busy) return;
+  if (route === '/launch') enterGameFullscreen();
   busy = true; $('error').hidden = true;
   try {
     const response = await fetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
@@ -100,7 +114,7 @@ function openDialog(options) {
 }
 $('brand-home').onclick = event => { event.preventDefault(); send('/home'); };
 $('featured-launch').onclick = () => send('/launch', { app: apps[selected].id });
-$('back-home').onclick = $('menu-home').onclick = () => send('/home');
+$('menu-home').onclick = () => send('/home');
 $('start-game').onclick = () => openDialog(false); $('game-options').onclick = () => openDialog(true);
 $('dialog-close').onclick = $('dialog-return').onclick = () => dialog.close();
 $('motion').onchange = () => {

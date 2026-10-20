@@ -34,8 +34,7 @@
     </section>
     <section id="app-screen" aria-label="게임" hidden>
       <img id="game-art" class="hero-art" alt=""><div class="game-shade"></div>
-      <button id="back-home" class="quiet back" type="button">← S Box 홈 <kbd>Esc</kbd></button>
-      <div id="loading-screen" role="status" aria-live="polite" hidden>
+      <div id="loading-screen" role="status" aria-live="polite" tabindex="-1" hidden>
         <img id="loading-icon" class="loading-icon" alt=""><h1 id="loading-name"></h1>
         <p id="loading-status">게임을 준비하고 있습니다</p>
         <div class="loading-track" role="progressbar" aria-label="게임 준비 중"><span></span></div>
@@ -45,7 +44,7 @@
           <nav id="game-menu" aria-label="게임 메뉴">
             <button id="start-game" type="button" class="menu-item primary"></button>
             <button id="game-options" type="button" class="menu-item">설정</button>
-            <button id="menu-home" type="button" class="menu-item">S Box로 돌아가기</button>
+            <button id="menu-home" type="button" class="menu-item">게임 종료</button>
           </nav>
         </div>
         <div class="title-bottom"><span id="game-world"></span><span>DEMO EDITION</span></div>
@@ -58,7 +57,7 @@
     <div class="dialog-head"><h2 id="dialog-title"></h2><button id="dialog-close" class="quiet" type="button" aria-label="닫기">×</button></div>
     <div id="demo-panel" hidden><p id="demo-scene" class="eyebrow"></p><p id="demo-description"></p><p class="muted">이 데모는 게임 실행과 타이틀 화면까지 재현합니다.</p></div>
     <div id="options-panel" hidden><label><input id="motion" type="checkbox" checked> 화면 전환 효과</label><p class="muted">이 S Box 화면에 적용됩니다.</p></div>
-    <button id="dialog-return" class="primary compact" type="button">타이틀로 돌아가기</button>
+    <button id="dialog-return" class="primary compact" type="button">확인</button>
   </dialog>
   </div>
   <script src="apps.js"></script><script type="module" src="player.js"></script>

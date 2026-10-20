@@ -1,5 +1,20 @@
 /* S Box startup and screen transitions. Timing does not gate incoming commands. */
 body { overflow-x: clip; }
+/* A launched game owns the viewport; console chrome belongs to the library. */
+body:is([data-phase="loading"], [data-phase="ready"]) { overflow: hidden; background: #050912; }
+body:is([data-phase="loading"], [data-phase="ready"]) header,
+body:is([data-phase="loading"], [data-phase="ready"]) footer { display: none; }
+body:is([data-phase="loading"], [data-phase="ready"]) main {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+body:is([data-phase="loading"], [data-phase="ready"]) #app-screen {
+  width: 100%;
+  height: 100svh;
+  min-height: 100svh;
+  border-radius: 0;
+}
 #console-shell {
   display: flex;
   flex: 1;
@@ -115,6 +130,15 @@ dialog[open] { animation: title-arrive .2s ease-out both; }
   to { opacity: 1; transform: none; }
 }
 .no-motion *, .no-motion *::before, .no-motion *::after { animation: none !important; transition: none !important; }
+@media (max-height: 650px) and (min-width: 551px) {
+  .title-copy { padding: 24px 6vw 58px; max-width: 700px; }
+  .title-icon { width: 32px; height: 32px; margin-bottom: 8px; }
+  .game-title { font-size: clamp(34px,10vh,64px); margin-bottom: 10px; }
+  .title-copy .eyebrow { margin-bottom: 6px; }
+  .title-copy > p:not(.eyebrow) { margin-bottom: 0; }
+  #game-menu { margin-top: 16px; gap: 6px; }
+  .title-bottom { bottom: 14px; }
+}
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
