@@ -4,6 +4,7 @@ PC A는 게임 화면을 표시하는 콘솔이고, PC B는 연결된 모든 A�
 
 | 문서 | 내용 |
 |---|---|
+| [개발 미리보기](preview.md) | sbox.dev.readiz.com 접속, 별도 A/B와 개발 서버 배포 |
 | [전체 흐름도](flow.md) | A가 시작하는 WebSocket 연결, 전체 전송, TV 내부 서비스 호출 |
 | [실행 가이드](setup.md) | 한 PC 루프백 실행, Windows 개별 실행, B 주소 입력, WGT 설치 |
 | [콘솔 요구사항](console.md) | 게임 이미지와 아이콘, 모의 로딩, 타이틀 메뉴와 키보드 입력 |

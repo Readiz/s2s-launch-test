@@ -21,6 +21,10 @@ flowchart LR
 
 WGT는 HTTP와 App Control을 각각 시작한 뒤 양쪽 호출 콜백이 끝나면 스스로 종료한다. 내부 서비스에 HDMI 포트나 게임 정보를 전달하지 않는다. C# 서비스 구현 담당자는 [TV 서비스 구현 명세](docs/tv-service.md)를 기준으로 작업한다.
 
+## 개발 미리보기
+
+**[S Box 열기](https://sbox.dev.readiz.com)** — 설치 없이 부팅 화면과 게임 전환 효과를 확인한다. 방향키로 게임을 고르고 Enter로 실행하며 Esc로 홈에 돌아온다. 접속자들은 미리보기 콘솔 하나를 공유한다. [개발 서버 구성](docs/preview.md)
+
 ## 가장 빠른 실행: 한 PC에서 A + B
 
 Node.js 22 이상을 설치한 뒤 프로젝트 폴더에서 실행한다.
@@ -74,6 +78,7 @@ S Box는 접속과 새로고침 때 로고와 부팅 효과를 표시한다. 게
 ## 문서
 
 - [문서 안내](docs/README.md)
+- [개발 미리보기와 배포](docs/preview.md)
 - [전체 흐름도와 통신 방식](docs/flow.md)
 - [실행과 설정, WGT 서명 및 설치](docs/setup.md)
 - [PC A 콘솔 화면과 키보드 조작](docs/console.md)
