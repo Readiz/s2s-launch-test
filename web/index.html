@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Console · 홈</title><link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"></head>
+<body>
+  <header>
+    <div class="brand"><span class="brand-icon" aria-hidden="true">▦</span> CONSOLE <small>DEMO</small></div>
+    <div class="tools"><span id="connection" role="status">연결 중</span><button id="fullscreen" type="button" title="전체화면 (F11)" aria-label="전체화면">⛶</button></div>
+  </header>
+  <main>
+    <section id="home" aria-labelledby="home-title">
+      <div class="section-head"><h1 id="home-title">내 게임</h1><span>라이브러리 · 3개</span></div>
+      <div id="library" class="library" aria-label="게임 선택"></div>
+      <p class="hint"><kbd>←</kbd><kbd>→</kbd> 선택 <span>·</span> <kbd>Enter</kbd> 실행</p>
+    </section>
+    <section id="app-screen" aria-labelledby="app-name" hidden>
+      <div class="app-toolbar"><button id="back-home" type="button">← 홈 <kbd>Esc</kbd></button><span id="app-id"></span></div>
+      <div class="app-content"><div id="app-letter" class="app-letter" aria-hidden="true"></div><h1 id="app-name"></h1><p id="app-title"></p><span class="running"><span aria-hidden="true">●</span> 실행 중</span></div>
+    </section>
+    <p id="error" role="alert" hidden></p>
+  </main>
+  <footer><span id="context">콘솔 홈</span><span>TV 딥링크로도 앱을 실행할 수 있습니다.</span></footer>
+  <script src="apps.js"></script><script src="player.js"></script>
+</body>
+</html>

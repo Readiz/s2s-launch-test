@@ -1,0 +1,12 @@
+{
+  "pcAPort": 4101,
+  "pcBPort": 4100,
+  "pcBUrl": "",
+  "hdmi": {
+    "appId": "com.hssg.tvservice",
+    "operation": "http://hssg.com/appcontrol/operation/activate_hdmi",
+    "uri": null,
+    "data": []
+  },
+  "consoleToken": ""
+}
