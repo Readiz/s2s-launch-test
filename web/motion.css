@@ -1,0 +1,120 @@
+/* S Box startup and screen transitions. Timing does not gate incoming commands. */
+body { overflow-x: clip; }
+#console-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 100vh;
+  animation: console-reveal .7s cubic-bezier(.2,.7,.2,1) both;
+}
+body[data-phase="boot"] { overflow: hidden; }
+#boot-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(ellipse at 50% 44%, #152b46 0%, #070d17 44%, #03070d 78%);
+}
+.boot-brand {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  animation: boot-arrive .9s cubic-bezier(.2,.7,.2,1) both;
+}
+.boot-brand::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -70px;
+  width: 330px;
+  height: 330px;
+  border: 1px solid #8fc7ff22;
+  border-radius: 50%;
+  box-shadow: 0 0 90px #4f9bff15, inset 0 0 80px #4f9bff10;
+  animation: boot-aura 2.4s ease-out both;
+}
+.boot-logo { filter: drop-shadow(0 0 32px #75b7ff40); }
+.boot-brand h1 {
+  font-size: clamp(40px,7vw,52px);
+  font-weight: 500;
+  letter-spacing: 5px;
+  line-height: 1.2;
+  margin: 28px 0 38px;
+  padding-left: 5px;
+}
+.boot-track { width: 110px; height: 2px; background: #ffffff15; overflow: hidden; border-radius: 2px; }
+.boot-track span {
+  display: block;
+  height: 100%;
+  background: #c1e1ff;
+  box-shadow: 0 0 12px #8dc6ff;
+  transform-origin: left;
+  animation: loading 2.4s cubic-bezier(.2,.6,.3,1) both;
+}
+.boot-brand p { margin: 15px 0 0; font-size: 11px; letter-spacing: 2px; color: #8ca1bd; }
+#home { animation: home-arrive .5s cubic-bezier(.2,.7,.2,1) both; }
+.tile-art { transition: transform .55s cubic-bezier(.2,.7,.2,1); }
+.game.selected .tile-art, .game:hover .tile-art { transform: scale(1.07); }
+.game.selected { box-shadow: 0 0 0 2px #b2d4ff55, 0 8px 28px #3e80cd20; }
+.game::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg,transparent 25%,#d6ecff17 49%,transparent 72%);
+  transform: translateX(-110%);
+}
+.game:focus-visible::after, .game:hover::after { animation: card-sheen .65s ease-out both; }
+body[data-phase="loading"] #game-art { animation: game-approach 2.2s ease-out both; }
+body[data-phase="ready"] #game-art { animation: game-reveal 1s cubic-bezier(.2,.7,.2,1) both; }
+body[data-phase="ready"] .title-copy > :not(nav),
+body[data-phase="ready"] .menu-item,
+body[data-phase="ready"] .title-bottom { animation: title-arrive .55s cubic-bezier(.2,.7,.2,1) both; }
+body[data-phase="ready"] .game-title { animation-delay: .07s; }
+body[data-phase="ready"] #game-tagline { animation-delay: .12s; }
+body[data-phase="ready"] .menu-item:nth-child(1) { animation-delay: .17s; }
+body[data-phase="ready"] .menu-item:nth-child(2) { animation-delay: .23s; }
+body[data-phase="ready"] .menu-item:nth-child(3) { animation-delay: .29s; }
+body[data-phase="ready"] .title-bottom { animation-delay: .35s; }
+.menu-item { transition: background .18s, border-color .18s, translate .18s; }
+.menu-item:hover, .menu-item:focus-visible { translate: 4px 0; }
+dialog[open] { animation: title-arrive .2s ease-out both; }
+@keyframes boot-arrive {
+  from { opacity: 0; transform: translateY(12px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes boot-aura {
+  from { opacity: 0; transform: scale(.75); }
+  35% { opacity: 1; }
+  to { opacity: .55; transform: scale(1.14); }
+}
+@keyframes console-reveal {
+  from { opacity: 0; transform: scale(1.018); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+@keyframes home-arrive {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes card-sheen { to { transform: translateX(110%); } }
+@keyframes game-approach {
+  from { transform: scale(1.09); filter: brightness(.4); }
+  to { transform: scale(1.025); filter: brightness(.75); }
+}
+@keyframes game-reveal {
+  from { transform: scale(1.025); filter: brightness(.75); }
+  to { transform: scale(1); filter: brightness(1); }
+}
+@keyframes title-arrive {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+.no-motion *, .no-motion *::before, .no-motion *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

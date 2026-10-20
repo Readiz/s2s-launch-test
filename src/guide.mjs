@@ -8,9 +8,9 @@ export function startupGuide(role, config, root) {
   const lines = [''];
   if (role === 'a') {
     lines.push(
-      '=== PC A 콘솔 실행 중 ===',
+      '=== PC A · S Box 콘솔 실행 중 ===',
       `1. 이 PC의 브라우저에서 열기: ${a}`,
-      '2. 홈에서 방향키 + Enter로 게임 실행, Esc로 홈 복귀',
+      '2. S Box 부팅 화면 후 홈에서 방향키 + Enter로 게임 실행, Esc로 홈 복귀',
       '3. TV에 HDMI로 연결했다면 F11 또는 화면의 전체화면 버튼 사용',
       '',
       `연결할 PC B 주소: ${b}`,
@@ -41,7 +41,8 @@ export function startupGuide(role, config, root) {
 export function localDemoGuide(config) {
   return [
     '', '=== 한 PC에서 A + B 실행 중 ===',
-    `1. 콘솔 화면을 먼저 열어 두세요: http://localhost:${config.pcAPort}`,
+    `1. S Box 화면을 먼저 열어 두세요: http://localhost:${config.pcAPort}`,
+    '   약 2.4초의 부팅 화면 후 게임 라이브러리가 나타납니다.',
     '2. 다른 브라우저 탭에서 아래 주소를 열면 콘솔의 게임이 바뀝니다.',
     ...apps.map(app => `   ${app.name}: http://localhost:${config.pcBPort}/tv/game-${app.key}/`),
     '3. 콘솔에서는 방향키 + Enter로 실행, Esc로 홈 복귀, F11로 전체화면',

@@ -2,6 +2,9 @@ import { createLaunchState } from './launch-state.mjs';
 const $ = id => document.getElementById(id);
 const apps = window.DEMO_APPS;
 let selected = 0, activeApp = null, busy = false;
+let booting = true, pendingApp = null;
+let artworkGeneration = 0;
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 const dialog = $('game-dialog');
 const preloaded = apps.map(app => { const image = new Image(); image.src = app.art; return image; });
 const tiles = apps.map((app, index) => {
@@ -18,27 +21,47 @@ const tiles = apps.map((app, index) => {
   button.onclick = () => send('/launch', { app: app.id });
   $('library').append(button); return button;
 });
+function stopArtworkTransition() {
+  artworkGeneration++;
+  for (const id of ['featured-art', 'featured-art-previous']) $(id).getAnimations().forEach(animation => animation.cancel());
+  $('featured-art-previous').hidden = true;
+}
+function setFeaturedArtwork(app) {
+  const art = $('featured-art'), previous = $('featured-art-previous');
+  if (art.getAttribute('src') === app.art) return;
+  const outgoing = art.getAttribute('src');
+  stopArtworkTransition();
+  art.src = app.art;
+  if (!outgoing || booting || motionPreference.matches || !$('motion').checked) return;
+  const generation = artworkGeneration;
+  previous.src = outgoing; previous.hidden = false;
+  const options = { duration: 500, easing: 'cubic-bezier(.2,.7,.2,1)' };
+  art.animate([{ opacity: 0, transform: 'scale(1.035)' }, { opacity: 1, transform: 'scale(1)' }], options);
+  const fade = previous.animate([{ opacity: 1 }, { opacity: 0 }], options);
+  fade.onfinish = () => { if (generation === artworkGeneration) previous.hidden = true; };
+}
 function select(index, focus = true) {
   selected = (index + apps.length) % apps.length;
   const app = apps[selected];
   tiles.forEach((tile, i) => { tile.classList.toggle('selected', i === selected); tile.tabIndex = i === selected ? 0 : -1; });
-  $('featured-art').src = app.art;
+  setFeaturedArtwork(app);
   $('featured-name').textContent = app.name;
   $('featured-genre').textContent = app.genre;
   $('featured-description').textContent = app.description;
   if (focus) tiles[selected].focus({ preventScroll: true });
 }
 function render({ phase, app }) {
+  stopArtworkTransition();
   activeApp = app;
   if (dialog.open) dialog.close();
   $('home').hidden = phase !== 'home'; $('app-screen').hidden = phase === 'home';
   $('loading-screen').hidden = phase !== 'loading'; $('title-screen').hidden = phase !== 'ready';
   $('error').hidden = true;
   document.body.dataset.phase = phase; document.body.dataset.app = app?.key || 'home';
-  document.title = app ? `${app.name}${phase === 'loading' ? ' · 로딩 중' : ''}` : 'Console · 라이브러리';
+  document.title = app ? `${app.name}${phase === 'loading' ? ' · 로딩 중' : ''} · S Box` : 'S Box · 라이브러리';
   $('context').textContent = app ? app.name : '게임 라이브러리';
   $('footer-hint').textContent = phase === 'home' ? '플레이할 게임을 선택하세요' : phase === 'loading' ? '게임 실행 중' : '↑ ↓ 메뉴 선택    Enter 확인';
-  $('favicon').href = app?.icon || 'data:,';
+  $('favicon').href = app?.icon || '/assets/brand/s-box.svg';
   if (!app) { select(selected); return; }
   selected = apps.indexOf(app);
   $('app-screen').setAttribute('aria-label', app.name);
@@ -48,12 +71,17 @@ function render({ phase, app }) {
   $('game-genre').textContent = app.genre; $('game-tagline').textContent = app.tagline;
   $('game-world').textContent = app.world;
   $('start-game').textContent = app.startLabel;
+  if (phase === 'loading') {
+    for (const element of [$('game-art'), $('loading-screen').querySelector('.loading-track span')]) {
+      for (const animation of element.getAnimations()) { animation.currentTime = 0; animation.play(); }
+    }
+  }
   if (phase === 'ready') $('start-game').focus({ preventScroll: true });
   else $('back-home').focus({ preventScroll: true });
 }
 const launchState = createLaunchState(render);
 async function send(route, body) {
-  if (busy) return;
+  if (booting || busy) return;
   busy = true; $('error').hidden = true;
   try {
     const response = await fetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
@@ -75,13 +103,17 @@ $('featured-launch').onclick = () => send('/launch', { app: apps[selected].id })
 $('back-home').onclick = $('menu-home').onclick = () => send('/home');
 $('start-game').onclick = () => openDialog(false); $('game-options').onclick = () => openDialog(true);
 $('dialog-close').onclick = $('dialog-return').onclick = () => dialog.close();
-$('motion').onchange = () => { document.body.classList.toggle('no-motion', !$('motion').checked); };
+$('motion').onchange = () => {
+  document.body.classList.toggle('no-motion', !$('motion').checked);
+  if (!$('motion').checked) stopArtworkTransition();
+};
+motionPreference.addEventListener('change', () => { if (motionPreference.matches) stopArtworkTransition(); });
 $('fullscreen').onclick = async () => {
   try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); }
   catch { $('error').textContent = 'F11 키로 전체화면을 켜세요.'; $('error').hidden = false; }
 };
 document.addEventListener('keydown', event => {
-  if (event.altKey || event.ctrlKey || event.metaKey || dialog.open) return;
+  if (booting || event.altKey || event.ctrlKey || event.metaKey || dialog.open) return;
   if (event.key === 'Escape' && activeApp) { event.preventDefault(); send('/home'); }
   else if (!activeApp && ['ArrowLeft', 'ArrowUp', 'ArrowRight', 'ArrowDown'].includes(event.key)) {
     event.preventDefault(); select(selected + (['ArrowLeft', 'ArrowUp'].includes(event.key) ? -1 : 1));
@@ -96,5 +128,18 @@ document.addEventListener('keydown', event => {
 select(0, false);
 const stream = new EventSource('/events');
 stream.onopen = () => { $('connection').textContent = '● 연결됨'; };
-stream.onmessage = event => { const { app } = JSON.parse(event.data); launchState.launch(apps.find(item => item.id === app) || null); };
+stream.onmessage = event => {
+  const { app } = JSON.parse(event.data);
+  const nextApp = apps.find(item => item.id === app) || null;
+  // Keep receiving commands during startup; only the latest state is shown.
+  if (booting) pendingApp = nextApp;
+  else launchState.launch(nextApp);
+};
 stream.onerror = () => { $('connection').textContent = '재연결 중…'; };
+// Startup is a visual effect and must finish even when PC B is unavailable.
+setTimeout(() => {
+  booting = false;
+  $('boot-screen').hidden = true;
+  $('console-shell').hidden = false;
+  launchState.launch(pendingApp);
+}, 2400);

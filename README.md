@@ -1,6 +1,8 @@
 # S2S Launch Test
 
-TV에서 세 게임 WGT를 실행하면 PC B가 명령을 받아 **연결된 모든 PC A의 게임 화면을 전환**하는 인트라넷 데모다. PC A는 Xbox 같은 콘솔 역할, PC B는 게임사의 딥링크 중계 서버 역할이다. 기존 프로젝트와 독립적으로 관리한다.
+<img src="assets/brand/s-box.svg" width="64" alt="S Box 로고">
+
+TV에서 세 게임 WGT를 실행하면 PC B가 명령을 받아 **연결된 모든 PC A의 게임 화면을 전환**하는 인트라넷 데모다. PC A는 **S Box**라는 가상 콘솔, PC B는 게임사의 딥링크 중계 서버 역할이다. 기존 프로젝트와 독립적으로 관리한다.
 
 **관리할 서버 주소는 PC B 주소 하나다.** PC A들은 B에 먼저 WebSocket으로 연결하고, TV와 향후 리모컨 역할의 PC C는 B에 HTTP 명령을 보낸다. A의 IP를 등록하지 않는다.
 
@@ -8,8 +10,8 @@ TV에서 세 게임 WGT를 실행하면 PC B가 명령을 받아 **연결된 모
 flowchart LR
     TV[TV의 세 게임 WGT] -->|HTTP POST /launch| B[PC B: 딥링크 중계]
     C[향후 PC C: 리모컨] -->|같은 HTTP 요청| B
-    A1[PC A 1: 콘솔] -->|WebSocket 연결 시작| B
-    A2[PC A 2: 콘솔] -->|WebSocket 연결 시작| B
+    A1[PC A 1: S Box] -->|WebSocket 연결 시작| B
+    A2[PC A 2: S Box] -->|WebSocket 연결 시작| B
     B -->|연결된 모든 A에 앱 전환| A1
     B -->|연결된 모든 A에 앱 전환| A2
     A1 -->|HDMI 화면| DISPLAY[TV]
@@ -30,7 +32,7 @@ npm run dev
 
 터미널에 열어야 할 주소와 순서가 표시된다.
 
-1. 콘솔 화면 `http://localhost:4101`을 먼저 연다.
+1. S Box 화면 `http://localhost:4101`을 먼저 연다. 약 2.4초의 부팅 화면 후 게임 라이브러리가 나타난다.
 2. 다른 탭에서 `http://localhost:4100/tv/game-a/`를 열면 콘솔이 Apex Racing으로 바뀐다. `game-b/`, `game-c/`도 같다.
 3. 콘솔에서 방향키와 Enter로 직접 게임을 실행하고 Esc로 홈에 돌아온다. 전체화면은 F11 또는 화면의 버튼을 사용한다.
 
@@ -59,11 +61,15 @@ npm run dev
 
 ## 화면
 
-![콘솔 게임 라이브러리](docs/screenshots/console-home.jpg)
+![S Box 부팅 화면](docs/screenshots/s-box-boot.jpg)
+
+![S Box 게임 라이브러리](docs/screenshots/console-home.jpg)
 
 ![Forest Quest 타이틀 화면](docs/screenshots/forest-quest-title.jpg)
 
 게임별 이미지와 아이콘은 이 프로젝트를 위해 생성했다. 원본 제작 프롬프트와 파일 구성은 [이미지 안내](assets/games/README.md)에 있다. 개발용 WGT에는 각 게임의 117×117 PNG 아이콘을 포함한다.
+
+S Box는 접속과 새로고침 때 로고와 부팅 효과를 표시한다. 게임 선택 배경의 크로스페이드, 카드의 확대와 빛 반사, 게임 실행 배경의 확대 전환, 타이틀 메뉴의 순차 등장 효과를 적용한다. 부팅 중 받은 명령은 가장 마지막 상태를 이어서 표시하며, 게임 설정이나 OS의 동작 줄이기 설정으로 애니메이션을 끌 수 있다. [화면 동작과 키보드 안내](docs/console.md)
 
 ## 문서
 
@@ -83,7 +89,8 @@ src/console-link.mjs A가 시작하는 WebSocket 연결, B의 전체 전송과 �
 src/config.mjs       공통 설정과 게임 목록
 src/startup.mjs      실행 시 B 주소 입력과 로컬 저장
 src/guide.mjs        역할별 실행 안내
-web/                콘솔 홈, 모의 로딩과 게임 타이틀 메뉴
+web/                S Box 부팅, 콘솔 홈, 모의 로딩과 게임 타이틀 메뉴
+assets/brand/       S Box SVG 로고
 assets/games/       게임별 배경, 아이콘과 제작 프롬프트
 tv/                세 WGT의 공통 HTTP/App Control/종료 코드
 scripts/            WGT 생성과 한 PC 데모 실행

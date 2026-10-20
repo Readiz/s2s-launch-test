@@ -31,7 +31,7 @@ test('all WGTs carry the named game and its distinct 117px installation icon', a
   }
   assert.equal(new Set(icons).size, 3);
 });
-test('console serves every cover, icon, and loading module with the right media type', async t => {
+test('console serves its brand, game artwork, and loading module with the right media type', async t => {
   const a = createServer('a', { pcBPort: 1 });
   const address = await listen(a, 0, '127.0.0.1'); t.after(() => a.shutdown());
   const base = `http://127.0.0.1:${address.port}`;
@@ -42,5 +42,8 @@ test('console serves every cover, icon, and loading module with the right media 
   }
   const module = await fetch(base + '/launch-state.mjs');
   assert.equal(module.status, 200); assert.match(module.headers.get('content-type'), /javascript/);
+  const logo = await fetch(base + '/assets/brand/s-box.svg');
+  assert.equal(logo.status, 200); assert.equal(logo.headers.get('content-type'), 'image/svg+xml');
+  assert.match(await logo.text(), /<svg/);
   assert.equal((await fetch(base + '/assets/games/prompts.json')).status, 404);
 });

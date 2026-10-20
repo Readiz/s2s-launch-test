@@ -72,15 +72,15 @@ export function createServer(role, config, linkOptions = {}) {
     }
     // Static display on PC A; WGT source preview on PC B for local testing.
     const preview = role === 'b' && route.match(/^\/tv\/game-([abc])\/(index\.html|launcher\.js|hdmi\.js|config\.js|icon\.png)?$/);
-    const playerFiles = { '/': 'index.html', '/player.js': 'player.js', '/launch-state.mjs': 'launch-state.mjs', '/style.css': 'style.css' };
-    const asset = role === 'a' && apps.some(app => route === app.art || route === app.icon) ? path.join(root, route.slice(1)) : null;
+    const playerFiles = { '/': 'index.html', '/player.js': 'player.js', '/launch-state.mjs': 'launch-state.mjs', '/style.css': 'style.css', '/motion.css': 'motion.css' };
+    const asset = role === 'a' && (route === '/assets/brand/s-box.svg' || apps.some(app => route === app.art || route === app.icon)) ? path.join(root, route.slice(1)) : null;
     const file = asset || (preview
       ? path.join(root, 'build/tv', `game-${preview[1]}`, preview[2] || 'index.html')
       : role === 'a' && playerFiles[route] ? path.join(root, 'web', playerFiles[route]) : null);
     if (req.method === 'GET' && file) {
       try {
         const data = await readFile(file);
-        const type = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.webp':'image/webp' }[path.extname(file)];
+        const type = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.webp':'image/webp', '.svg':'image/svg+xml' }[path.extname(file)];
         res.writeHead(200, { 'Content-Type':type, 'Cache-Control':'no-store' }); res.end(data);
       } catch { json(res,404,{error:'파일이 없습니다. npm run build:tv를 실행하세요.'}); }
       return;
