@@ -23,11 +23,11 @@ WGT는 HTTP와 App Control을 각각 시작한 뒤 양쪽 호출 콜백이 끝�
 
 ## 개발 미리보기
 
-**[S Box 열기](https://sbox.dev.readiz.com)** — 설치 없이 부팅 화면과 게임 전환 효과를 확인한다. 방향키로 게임을 고르고 Enter로 실행하며 Esc로 홈에 돌아온다. 접속자들은 미리보기 콘솔 하나를 공유한다. [개발 서버 구성](docs/preview.md)
+**[S Box 열기](https://sbox.dev.readiz.com)** — 설치 없이 부팅 화면과 게임 전환 효과를 확인한다. 방향키로 게임을 고르고 Enter로 실행하며 Esc로 홈에 돌아온다. 화면은 각 브라우저 안에서만 동작하며 다른 접속자와 공유하지 않는다. [개발 서버 구성](docs/preview.md)
 
 ## 가장 빠른 실행: 한 PC에서 A + B
 
-Node.js 22 이상을 설치한 뒤 프로젝트 폴더에서 실행한다.
+Node.js 24 LTS (24.22.1 이상)을 설치한 뒤 프로젝트 폴더에서 실행한다.
 
 ```sh
 npm ci

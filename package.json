@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": ">=24.22.1"
   },
   "scripts": {
     "start:a": "node src/server.mjs a",
@@ -12,7 +12,7 @@
     "dev": "node scripts/local-demo.mjs",
     "build:tv": "node scripts/build-tv.mjs",
     "test": "node --test tests/*.test.mjs",
-    "preview": "node scripts/preview-server.mjs"
+    "build:preview": "node scripts/build-preview.mjs"
   },
   "dependencies": {
     "ws": "8.22.0"

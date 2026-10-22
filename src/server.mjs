@@ -72,7 +72,7 @@ export function createServer(role, config, linkOptions = {}) {
     }
     // Static display on PC A; WGT source preview on PC B for local testing.
     const preview = role === 'b' && route.match(/^\/tv\/game-([abc])\/(index\.html|launcher\.js|hdmi\.js|config\.js|icon\.png)?$/);
-    const playerFiles = { '/': 'index.html', '/player.js': 'player.js', '/launch-state.mjs': 'launch-state.mjs', '/style.css': 'style.css', '/motion.css': 'motion.css' };
+    const playerFiles = { '/': 'index.html', '/player.js': 'player.js', '/launch-state.mjs': 'launch-state.mjs', '/transport.mjs': 'transport.mjs', '/style.css': 'style.css', '/motion.css': 'motion.css' };
     const asset = role === 'a' && (route === '/assets/brand/s-box.svg' || apps.some(app => route === app.art || route === app.icon)) ? path.join(root, route.slice(1)) : null;
     const file = asset || (preview
       ? path.join(root, 'build/tv', `game-${preview[1]}`, preview[2] || 'index.html')

@@ -1,20 +1,23 @@
-http://sbox.dev.readiz.com {
-	redir https://sbox.dev.readiz.com{uri} 308
-}
-
-sbox.dev.readiz.com {
-	header {
-		X-Robots-Tag "noindex, nofollow"
-		X-Content-Type-Options "nosniff"
-		Cache-Control "no-store"
-	}
-	@robots {
-		method GET HEAD
-		path /robots.txt
-	}
-	header @robots Content-Type "text/plain; charset=utf-8"
-	respond @robots "User-agent: *\nDisallow: /\n" 200
-	reverse_proxy 127.0.0.1:4491 {
-		flush_interval -1
-	}
+# Import this snippet with the absolute path to the exported static directory.
+(sbox_preview) {
+  http://sbox.dev.readiz.com {
+    redir https://sbox.dev.readiz.com{uri} 308
+  }
+  sbox.dev.readiz.com {
+    root * {args[0]}
+    header {
+      X-Robots-Tag "noindex, nofollow"
+      X-Content-Type-Options "nosniff"
+      Cache-Control "no-store"
+      Referrer-Policy "no-referrer"
+      Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self' https://www.readiz.com"
+    }
+    route {
+      @retired path /events /launch /home /status /console /events/* /launch/* /home/* /status/* /console/*
+      respond @retired "Shared preview service retired." 410
+      @write not method GET HEAD
+      respond @write "Method not allowed." 405
+      file_server
+    }
+  }
 }

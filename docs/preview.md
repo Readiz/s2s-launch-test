@@ -1,30 +1,34 @@
 # S Box 개발 미리보기
 
-화면 확인 주소는 **<https://sbox.dev.readiz.com>**이다. `localhost`는 개발자가 내부 상태를 확인할 때 사용하며, 사용자에게 전달하는 미리보기 주소는 `*.dev.readiz.com`을 사용한다.
+화면 확인 주소는 **<https://sbox.dev.readiz.com>**이다. 방향키·Enter·Esc로 부팅, 게임 로딩과 타이틀 화면을 확인한다. 각 페이지가 화면 상태를 따로 관리하며 다른 방문자나 탭에 조작을 전달하지 않는다.
 
-페이지를 열면 S Box 부팅 화면이 나오고 방향키·Enter·Esc로 세 게임의 로딩과 타이틀 화면을 확인할 수 있다. 이 주소의 브라우저들은 하나의 미리보기 콘솔 상태를 공유하므로 한 사람이 게임을 바꾸면 다른 접속자의 화면도 바뀐다.
+## 구성
 
-## 실행 구조
+Caddy가 정적 파일을 직접 제공한다. 공개 미리보기에는 Node 서버, SSE, WebSocket, 공유 콘솔 API가 없다. 브라우저의 네트워크 연결도 CSP의 `connect-src 'none'`으로 제한한다. 이전 `/events`, `/launch`, `/home`, `/status`, `/console` 경로는 410, 그 밖의 쓰기 요청은 405를 반환한다.
 
-```mermaid
-flowchart LR
-    Browser[사용자 브라우저] -->|HTTPS| Caddy[sbox.dev.readiz.com]
-    Caddy -->|HTTP / SSE| A[미리보기 PC A :4491]
-    A -->|WebSocket| B[미리보기 PC B :4490]
+소스 빌드·검사는 기존 서비스와 같은 nvm Node 24 LTS로 실행하며 보안 패치 버전을 사용한다. 상시 Node 프로세스나 launchd 작업은 필요하지 않다.
+
+```sh
+npm ci
+npm test
+npm run build:preview
 ```
 
-`npm run preview`는 A/B를 각각 `127.0.0.1:4491`, `127.0.0.1:4490`에 띄운다. 공개 주소는 Caddy가 A에 연결하며, B는 외부에 공개하지 않는다. 별도 포트가 필요하면 `SBOX_CONSOLE_PORT`, `SBOX_RELAY_PORT`를 지정하고 프록시의 대상 포트도 맞춘다.
+`dist/preview/`에는 HTML, CSS, 브라우저 모듈과 허용한 그림만 들어간다. 개인 설정, 소스, WGT, 서명키, 의존성 폴더는 게시하지 않는다. `web/transport.mjs`는 로컬 장치 데모용이고, 정적 빌드는 통신하지 않는 `web/preview-transport.mjs`로 교체한다.
 
-이 실행 모드는 로컬 설정을 읽거나 WGT를 재생성하지 않는다. Windows/HDMI 데모의 기본 포트 `4100`/`4101`, B IP 입력, WGT 생성과 설치 흐름은 [실행 가이드](setup.md)를 따른다.
+## 배포
 
-## 배포와 확인
+검증한 커밋의 `dist/preview/`를 새 릴리스의 공개 디렉터리로 복사한다. 기존 파일을 덮어쓰지 않고 `current` 링크를 원자적으로 전환한다. Caddy 메인 파일에서 전용 설정을 가져오고 공개 디렉터리를 전달한다.
 
-- `ops/caddy/preview.Caddyfile`이 개발 호스트의 HTTP→HTTPS 전환, 역방향 프록시, 검색 제외 헤더와 `/robots.txt`를 정의한다.
-- 검증한 소스와 의존성을 전용 실행 디렉터리에 배치하고, 개발 서버 호스트의 프로세스 관리자로 `scripts/preview-server.mjs`를 유지한다. 채팅 터미널의 수명에 의존하지 않는다.
-- Caddy의 기존 설정을 백업하고 이 호스트 설정만 추가한다. 전체 설정을 검증한 뒤 reload하며, 기존 서비스의 라우트와 DNS 레코드는 유지한다.
-- 배포 후 일반 DNS의 HTTPS와 인증서, 핵심 JS/CSS/이미지, SSE 이벤트 전달, 키보드로 게임 실행과 홈 복귀를 확인한다.
-- 실행 경로·포트·프로세스 이름·로그·중지 방법은 배포 호스트의 비공개 관리 기록에 보관한다. 개인 경로와 서버 설정 백업은 공개 저장소에 넣지 않는다.
+```caddyfile
+import /path/to/current/ops/caddy/preview.Caddyfile
+import sbox_preview /path/to/current/public
+```
 
-이 미리보기는 공개된 가상 게임 UI 데모다. TV WGT 설치, C# 내부 서비스와 HDMI/CEC 실기기 동작은 이 주소로 검증하지 않는다.
+Caddy 메인 파일과 활성 JSON, 이전 릴리스·관리 기록을 비공개로 백업한다. 후보 설정을 검증하고 다른 호스트의 라우트가 동일한지 비교한 뒤 reload한다. 첫 정적 전환에서는 HTTPS 자산과 게임 전환을 확인하고 이전 미리보기 launchd 작업을 종료·등록 해제한다. 4490/4491 리스너가 사라졌는지 확인한다. 실패하면 이전 링크와 설정·작업을 복구한다.
+
+실제 HTTPS에서 그림·스크립트 해시, 두 브라우저의 독립 상태, 키보드 실행·홈 복귀와 통신 요청 부재를 확인한다. 실행 경로와 소스 커밋, 백업·복구 방법은 호스트의 비공개 관리 기록에 보관한다.
+
+이 공개 주소는 가상 게임 UI다. 로컬 PC A/B, TV WGT와 HDMI/CEC 흐름은 별도이며 [실행 가이드](setup.md)를 따른다.
 
 [문서 안내](README.md) | [S Box 화면과 조작](console.md)

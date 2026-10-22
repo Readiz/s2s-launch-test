@@ -1,4 +1,5 @@
 import { createLaunchState } from './launch-state.mjs';
+import { createConsoleTransport } from './transport.mjs';
 const $ = id => document.getElementById(id);
 const apps = window.DEMO_APPS;
 let selected = 0, activeApp = null, busy = false;
@@ -98,9 +99,7 @@ async function send(route, body) {
   if (route === '/launch') enterGameFullscreen();
   busy = true; $('error').hidden = true;
   try {
-    const response = await fetch(route, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.error || '요청을 처리하지 못했습니다.');
+    await transport.send(route, body);
   } catch (error) { $('error').textContent = error.message; $('error').hidden = false; }
   finally { busy = false; }
 }
@@ -140,16 +139,15 @@ document.addEventListener('keydown', event => {
   }
 });
 select(0, false);
-const stream = new EventSource('/events');
-stream.onopen = () => { $('connection').textContent = '● 연결됨'; };
-stream.onmessage = event => {
-  const { app } = JSON.parse(event.data);
-  const nextApp = apps.find(item => item.id === app) || null;
-  // Keep receiving commands during startup; only the latest state is shown.
-  if (booting) pendingApp = nextApp;
-  else launchState.launch(nextApp);
-};
-stream.onerror = () => { $('connection').textContent = '재연결 중…'; };
+const transport = createConsoleTransport({
+  onStatus: status => { $('connection').textContent = status; },
+  onApp: app => {
+    const nextApp = apps.find(item => item.id === app) || null;
+    // Keep the latest local or device state until startup completes.
+    if (booting) pendingApp = nextApp;
+    else launchState.launch(nextApp);
+  }
+});
 // Startup is a visual effect and must finish even when PC B is unavailable.
 setTimeout(() => {
   booting = false;
