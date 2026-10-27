@@ -1,54 +1,9 @@
-import path from 'node:path';
-import { apps } from './config.mjs';
-
-export function startupGuide(role, config, root) {
-  const b = config.pcBUrl || `http://127.0.0.1:${config.pcBPort}`;
-  const a = `http://localhost:${config.pcAPort}`;
-  const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(new URL(b).hostname);
-  const lines = [''];
-  if (role === 'a') {
-    lines.push(
-      '=== PC A · S Box 콘솔 실행 중 ===',
-      `1. 이 PC의 브라우저에서 열기: ${a}`,
-      '2. S Box 부팅 화면 후 홈에서 방향키 + Enter로 게임 실행, Esc로 홈 복귀',
-      '3. TV에 HDMI로 연결했다면 F11 또는 화면의 전체화면 버튼 사용',
-      '',
-      `연결할 PC B 주소: ${b}`,
-      'B가 아직 꺼져 있어도 콘솔은 사용할 수 있고, B 연결은 자동 재시도합니다.',
-      'A 주소를 다른 기기에 입력하거나 B에 등록할 필요는 없습니다.'
-    );
-  } else {
-    lines.push(
-      '=== PC B 중계 서버 실행 중 ===',
-      `다른 앱에 입력할 B 주소: ${b}`,
-      '',
-      '1. 각 PC A에서 start-pc-a.cmd를 실행하고 위 B 주소를 입력하세요.',
-      '2. A 실행 창에 표시되는 콘솔 주소를 그 A의 브라우저에서 여세요.',
-      '3. 아래 미리보기 중 하나를 브라우저에서 열면 연결된 모든 A의 앱이 바뀝니다.',
-      ...apps.map(app => `   ${app.name}: ${b}/tv/game-${app.key}/`),
-      '',
-      `연결된 A 개수 확인: ${b}/status`,
-      `TV 앱 패키지(서명 전): ${path.join(root, 'dist', 'unsigned')}`,
-      '실제 TV에는 WGT 서명 후 설치하세요. C# 내부 서비스도 별도 설치해야 합니다.'
-    );
-  }
-  if (loopback) lines.push('', '현재 B 주소는 같은 PC에서만 쓰는 루프백 주소입니다.',
-    'TV나 다른 PC도 연결하려면 B를 다시 실행해 B의 LAN IP를 입력하고, 각 A와 WGT도 그 주소로 맞추세요.');
-  lines.push('', '관리할 서버 주소는 B 주소 하나입니다. 종료: 이 창에서 Ctrl+C', '');
-  return lines.join('\n');
+export function startupGuide(role, config) {
+  const b=config.pcBUrl||`http://127.0.0.1:${config.pcBPort}`;
+  return role==='a'
+    ? `\nS Box 콘솔: http://localhost:${config.pcAPort}\n명령 중계 연결: ${b}\n방향키와 Enter로 로컬 실행, Esc로 홈 복귀. B 연결은 자동 재시도합니다.\n종료: Ctrl+C\n`
+    : `\nPC B 명령 중계: ${b}\nGaming Hub 브라우저 시뮬레이션: ${b}/\nS Box 콘솔을 먼저 열고 게임을 선택하세요. POST /launch는 기존과 같습니다.\nTV에서는 npm run build:tv로 만든 gaming-hub.wgt를 서명해 설치합니다.\nWGT는 내부 서비스에 AppControl만 보냅니다. 서비스 이후 구현은 별도입니다.\n종료: Ctrl+C\n`;
 }
-
 export function localDemoGuide(config) {
-  return [
-    '', '=== 한 PC에서 A + B 실행 중 ===',
-    `1. S Box 화면을 먼저 열어 두세요: http://localhost:${config.pcAPort}`,
-    '   약 2.4초의 부팅 화면 후 게임 라이브러리가 나타납니다.',
-    '2. 다른 브라우저 탭에서 아래 주소를 열면 콘솔의 게임이 바뀝니다.',
-    ...apps.map(app => `   ${app.name}: http://localhost:${config.pcBPort}/tv/game-${app.key}/`),
-    '3. 콘솔에서는 방향키 + Enter로 실행, Esc로 홈 복귀, F11로 전체화면',
-    '', 'A는 이 PC의 B에 루프백으로 자동 연결했습니다. IP 입력은 필요 없습니다.',
-    '미리보기의 HDMI 미지원 안내는 PC 브라우저에 Tizen API가 없어서 표시됩니다.',
-    '실제 TV/다른 PC를 연결할 때는 A/B를 개별 실행하고 B의 LAN IP를 입력하세요.',
-    '종료: 이 창에서 Ctrl+C (A와 B 함께 종료)', ''
-  ].join('\n');
+  return `\nS Box 콘솔: http://localhost:${config.pcAPort}\nGaming Hub TV 화면: http://localhost:${config.pcBPort}\nS Box를 먼저 열고 Hub에서 게임을 선택하세요. 이 로컬 브라우저 데모는 B의 HTTP로 AppControl 이후 전달을 모의합니다.\nTV WGT는 별도: npm run build:tv. 실제 내부 서비스와 HDMI 처리는 별도 연동합니다.\n종료: Ctrl+C (두 서버 함께 종료)\n`;
 }

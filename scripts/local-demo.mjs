@@ -1,6 +1,5 @@
 import { createServer,listen,loadConfig } from '../src/server.mjs';
 import { localDemoGuide } from '../src/guide.mjs';
-await import('./build-tv.mjs');
 const config=await loadConfig();
 config.pcBUrl=`http://127.0.0.1:${config.pcBPort}`;
 const a=createServer('a',config),b=createServer('b',config);

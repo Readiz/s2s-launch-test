@@ -1,58 +1,43 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import vm from 'node:vm';
-import { readFile } from 'node:fs/promises';
-const defaults=JSON.parse(await readFile(new URL('../config.json',import.meta.url),'utf8'));
-assert.equal(defaults.hdmi.appId,'com.hssg.tvservice');
-assert.equal(defaults.hdmi.operation,'http://hssg.com/appcontrol/operation/activate_hdmi');
-assert.deepEqual(defaults.hdmi.data,[]);
-const hdmi=await readFile(new URL('../tv/hdmi.js',import.meta.url),'utf8');
-const launcher=await readFile(new URL('../tv/launcher.js',import.meta.url),'utf8');
-function run() {
-  const events=[],nodes={name:{},status:{}};
-  let xhr,success,failure,deadline,exits=0;
-  const config={app:'R7kP2mN9vQ.ApexRacing',name:'Apex Racing',pcBUrl:'http://pc-b.test:4100',hdmi:defaults.hdmi};
-  const context={
-    APP_CONFIG:config,document:{getElementById:id=>nodes[id]},location:{protocol:'file:'},
-    console:{error:()=>{}},setTimeout:fn=>{deadline=fn;return 1;},clearTimeout:()=>{},
-    XMLHttpRequest:function() {
-      xhr=this;this.readyState=1;
-      this.open=(method,url)=>{assert.equal(method,'POST');assert.equal(url,'http://pc-b.test:4100/launch');};
-      this.setRequestHeader=()=>{};
-      this.send=body=>{events.push('http');assert.deepEqual(JSON.parse(body),{app:config.app});};
-      this.abort=()=>{events.push('abort');};
-    },
-    tizen:{
-      ApplicationControlData:function(key,value){this.key=key;this.value=value;},
-      ApplicationControl:function(operation,uri,mime,category,data,launchMode){this.operation=operation;this.data=data;assert.equal(uri,null);assert.equal(mime,null);assert.equal(category,null);assert.equal(launchMode,'SINGLE');},
-      application:{
-        launchAppControl:(control,id,ok,fail)=>{
-          events.push('appcontrol');assert.equal(id,'com.hssg.tvservice');assert.equal(control.operation,'http://hssg.com/appcontrol/operation/activate_hdmi');
-          assert.equal(control.data.length,0);success=ok;failure=fail;
-        },
-        getCurrentApplication:()=>({exit:()=>{exits++;events.push('exit');}})
-      }
-    }
-  };
-  context.window=context;
-  vm.runInNewContext(hdmi,context);vm.runInNewContext(launcher,context);
-  return {events,exitCount:()=>exits,httpDone:()=>{xhr.readyState=4;xhr.status=200;xhr.responseText='{"ok":true}';xhr.onload();},httpFailed:()=>{xhr.readyState=4;xhr.onerror();},hdmiDone:()=>success(),hdmiFailed:()=>failure({name:'NotFoundError',message:'Fixture service unavailable'}),timeout:()=>deadline()};
+import { createHubLauncher } from '../hub/launch.mjs';
+import { defaultControl, makeRequest, readDeepLink } from '../hub/contract.mjs';
+import { apps } from '../src/config.mjs';
+function fixture() {
+  const calls=[],timers=new Map();let key=0;
+  const host={setTimeout:fn=>{timers.set(++key,fn);return key;},clearTimeout:id=>timers.delete(id),
+    tizen:{ApplicationControl:function(...args){this.args=args;},application:{launchAppControl:(control,id,ok,fail)=>calls.push({control,id,ok,fail})}},
+    fetch(){throw new Error('WGT must not issue HTTP');},open(){throw new Error('WGT must not open a console browser');}};
+  return {host,calls,timers,launcher:createHubLauncher({...defaultControl,mode:'tizen'},apps,host)};
 }
-test('WGT dispatches HTTP and App Control immediately, exits after both callbacks',()=>{
-  const app=run();assert.deepEqual(app.events,['http','appcontrol']);assert.equal(app.exitCount(),0);
-  app.hdmiDone();assert.equal(app.exitCount(),0);
-  app.httpDone();assert.equal(app.exitCount(),1);
-  app.hdmiDone();assert.equal(app.exitCount(),1);
+test('three selections dispatch exact game URIs to one service without HTTP or auto-exit',async()=>{
+  const f=fixture();
+  for(const app of apps){
+    const pending=f.launcher.launch(app.id),call=f.calls.at(-1);
+    assert.equal(call.id,'com.hssg.tvservice');
+    assert.deepEqual(call.control.args,[defaultControl.operation,'sbox://launch?app='+app.id,null,null,[],'SINGLE']);
+    call.ok();assert.deepEqual(await pending,{kind:'tizen'});assert.equal(f.timers.size,0);
+  }
+  assert.equal(f.calls.length,3);
 });
-test('missing callback cannot keep the WGT alive indefinitely',()=>{
-  const app=run();app.timeout();assert.equal(app.exitCount(),1);
-  app.httpDone();app.hdmiDone();assert.equal(app.exitCount(),1);
+test('pending control blocks duplicate activation; a failure permits another selection',async()=>{
+  const f=fixture(),first=f.launcher.launch(apps[0].id);
+  await assert.rejects(f.launcher.launch(apps[1].id),/실행 요청/);assert.equal(f.calls.length,1);
+  f.calls[0].fail({name:'NotFoundError',message:'fixture'});await assert.rejects(first,/NotFoundError/);
+  const next=f.launcher.launch(apps[1].id);f.calls[1].ok();await next;
 });
-test('HTTP completion does not exit before the App Control callback',()=>{
-  const app=run();app.httpDone();assert.equal(app.exitCount(),0);
-  app.hdmiDone();assert.equal(app.exitCount(),1);
+test('timeout ignores late callbacks and releases the launcher',async()=>{
+  const f=fixture(),first=f.launcher.launch(apps[0].id);
+  [...f.timers.values()][0]();await assert.rejects(first,/초과/);
+  const next=f.launcher.launch(apps[2].id);f.calls[0].ok();assert.equal(f.timers.size,1);f.calls[1].ok();await next;
 });
-test('failed HTTP and App Control calls still end the WGT',()=>{
-  const app=run();app.httpFailed();assert.equal(app.exitCount(),0);
-  app.hdmiFailed();assert.equal(app.exitCount(),1);
+test('missing TV API, unknown game and synchronous platform errors are recoverable',async()=>{
+  const f=fixture();await assert.rejects(f.launcher.launch('unknown'),/등록되지/);assert.equal(f.calls.length,0);
+  f.host.tizen.application.launchAppControl=()=>{throw new Error('SecurityError');};
+  await assert.rejects(f.launcher.launch(apps[0].id),/SecurityError/);assert.equal(f.timers.size,0);
+  delete f.host.tizen;await assert.rejects(f.launcher.launch(apps[0].id),/TV/);
+});
+test('deep links round trip and reject unknown or ambiguous targets',()=>{
+  for(const app of apps)assert.equal(readDeepLink(makeRequest(app.id,defaultControl,apps).uri,apps),app.id);
+  for(const uri of ['https://launch?app='+apps[0].id,'sbox://launch?app=unknown','sbox://user@launch?app='+apps[0].id,'sbox://launch:80?app='+apps[0].id,'sbox://launch?app='+apps[0].id+'&app='+apps[1].id,'sbox://launch/path?app='+apps[0].id,'sbox://launch?app='+apps[0].id+'&other=x'])assert.throws(()=>readDeepLink(uri,apps));
 });

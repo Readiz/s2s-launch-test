@@ -1,0 +1,23 @@
+# Import this snippet with the absolute path to the exported static directory.
+(gaminghub_preview) {
+  http://gaminghub.dev.readiz.com {
+    redir https://gaminghub.dev.readiz.com{uri} 308
+  }
+  gaminghub.dev.readiz.com {
+    root * {args[0]}
+    header {
+      X-Robots-Tag "noindex, nofollow"
+      X-Content-Type-Options "nosniff"
+      Cache-Control "no-store"
+      Referrer-Policy "no-referrer"
+      Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'self' https://www.readiz.com"
+    }
+    route {
+      @retired path /events /launch /home /status /console /events/* /launch/* /home/* /status/* /console/*
+      respond @retired "Shared preview service retired." 410
+      @write not method GET HEAD
+      respond @write "Method not allowed." 405
+      file_server
+    }
+  }
+}

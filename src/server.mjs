@@ -5,6 +5,7 @@ import path from 'node:path';
 import { createRelay, connectConsole } from './console-link.mjs';
 
 import { root, loadConfig, apps } from './config.mjs';
+import { defaultControl } from '../hub/contract.mjs';
 export { root, loadConfig, apps };
 
 function json(res, status, data) {
@@ -70,24 +71,25 @@ export function createServer(role, config, linkOptions = {}) {
       res.end(`window.DEMO_APPS = ${JSON.stringify(apps)};`);
       return;
     }
-    // Static display on PC A; WGT source preview on PC B for local testing.
-    const preview = role === 'b' && route.match(/^\/tv\/game-([abc])\/(index\.html|launcher\.js|hdmi\.js|config\.js|icon\.png)?$/);
-    const playerFiles = { '/': 'index.html', '/player.js': 'player.js', '/launch-state.mjs': 'launch-state.mjs', '/transport.mjs': 'transport.mjs', '/style.css': 'style.css', '/motion.css': 'motion.css' };
-    const asset = role === 'a' && (route === '/assets/brand/s-box.svg' || apps.some(app => route === app.art || route === app.icon)) ? path.join(root, route.slice(1)) : null;
-    const file = asset || (preview
-      ? path.join(root, 'build/tv', `game-${preview[1]}`, preview[2] || 'index.html')
-      : role === 'a' && playerFiles[route] ? path.join(root, 'web', playerFiles[route]) : null);
+    const hubNames = { '/':'index.html','/hub.js':'hub.js','/hub.css':'hub.css','/launch.mjs':'launch.mjs','/contract.mjs':'contract.mjs','/browser-console.mjs':'browser-console.mjs' };
+    if (role === 'b' && req.method === 'GET' && route === '/apps.js') {
+      res.writeHead(200, {'Content-Type':'text/javascript; charset=utf-8'});
+      res.end(`window.DEMO_APPS = ${JSON.stringify(apps.map(app=>({...app,art:app.art.slice(1),icon:app.icon.slice(1)})))};`); return;
+    }
+    if (role === 'b' && req.method === 'GET' && route === '/hub-config.js') {
+      const hostname=['localhost','127.0.0.1'].includes(new URL('http://'+req.headers.host).hostname) ? new URL('http://'+req.headers.host).hostname : 'localhost';
+      res.writeHead(200, {'Content-Type':'text/javascript; charset=utf-8'});
+      res.end(`window.HUB_CONFIG = ${JSON.stringify({...defaultControl,mode:'relay',consoleUrl:`http://${hostname}:${config.pcAPort||4101}`})};`); return;
+    }
+    const playerFiles = { '/':'index.html','/player.js':'player.js','/launch-state.mjs':'launch-state.mjs','/transport.mjs':'transport.mjs','/style.css':'style.css','/motion.css':'motion.css' };
+    const assetNames=['/assets/brand/s-box.svg',...apps.flatMap(app=>[app.art,app.icon]),...(role==='b'?['/assets/brand/gaming-hub.svg']:[])];
+    const file = assetNames.includes(route) ? path.join(root,route.slice(1)) : role==='a' && playerFiles[route] ? path.join(root,'web',playerFiles[route]) : role==='b' && hubNames[route] ? path.join(root,'hub',hubNames[route]) : null;
     if (req.method === 'GET' && file) {
       try {
         const data = await readFile(file);
-        const type = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.png':'image/png', '.webp':'image/webp', '.svg':'image/svg+xml' }[path.extname(file)];
+        const type = { '.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp','.svg':'image/svg+xml' }[path.extname(file)];
         res.writeHead(200, { 'Content-Type':type, 'Cache-Control':'no-store' }); res.end(data);
-      } catch { json(res,404,{error:'파일이 없습니다. npm run build:tv를 실행하세요.'}); }
-      return;
-    }
-    if (role === 'b' && req.method === 'GET' && route === '/') {
-      res.writeHead(200, { 'Content-Type':'text/plain; charset=utf-8' });
-      res.end('PC B 실행 중\nPOST /launch\n' + apps.map(app=>JSON.stringify({app:app.id})).join('\n'));
+      } catch { json(res,404,{error:'파일이 없습니다.'}); }
       return;
     }
     json(res,404,{error:'경로를 찾을 수 없습니다.'});
@@ -119,7 +121,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const { promptConfig } = await import('./startup.mjs');
     config = await promptConfig(role, config);
   }
-  if (role === 'b') await import('../scripts/build-tv.mjs');
   const server = createServer(role,config);
   const port = role === 'a' ? config.pcAPort : config.pcBPort;
   await listen(server,port,role === 'a' ? '127.0.0.1' : '0.0.0.0');

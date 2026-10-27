@@ -1,6 +1,6 @@
 {
   "name": "s2s-launch-test",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -12,7 +12,9 @@
     "dev": "node scripts/local-demo.mjs",
     "build:tv": "node scripts/build-tv.mjs",
     "test": "node --test tests/*.test.mjs",
-    "build:preview": "node scripts/build-preview.mjs"
+    "build:preview": "node scripts/build-preview.mjs",
+    "start:console": "node src/server.mjs a",
+    "start:relay": "node src/server.mjs b"
   },
   "dependencies": {
     "ws": "8.22.0"

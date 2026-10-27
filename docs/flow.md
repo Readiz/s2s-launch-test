@@ -1,80 +1,42 @@
-# 전체 흐름도
+# 두 앱의 실행 흐름
 
-## 기존 구현의 연결 구조
+## 실제 TV와 PC
 
 ```mermaid
 flowchart LR
-    WGT[TV의 게임 WGT] -->|HTTP POST /launch| B[PC B 중계 서버 :4100]
-    C[향후 PC C 리모컨] -->|같은 HTTP 요청| B
-    A1[PC A 1] -->|WebSocket 연결 시작| B
-    A2[PC A 2] -->|WebSocket 연결 시작| B
-    B -->|현재 연결된 모든 A에 명령| A1
-    B -->|현재 연결된 모든 A에 명령| A2
-    A1 -->|로컬 SSE| UI1[A 1 S Box 브라우저 :4101]
-    A2 -->|로컬 SSE| UI2[A 2 S Box 브라우저 :4101]
-    UI1 -->|HDMI| TV[TV 화면]
-    WGT -->|App Control, 데이터 없음| S[com.hssg.tvservice]
-    S -->|CEC wake 시도와 콘솔 HDMI 활성화| TV
+    H[TV Gaming Hub WGT] -->|AppControl: 게임 딥링크 URI| S[TV 내부 서비스]
+    S --> D[별도 담당: 딥링크 전달과 HDMI 처리]
+    D --> B[기존 PC B 명령 중계]
+    A[PC A S Box] -->|WebSocket 연결| B
+    B -->|선택 게임 명령| A
+    A -->|로컬 SSE| UI[S Box 브라우저]
+    UI -->|HDMI| TV[TV 화면]
 ```
 
-PC A가 B의 `/console`에 지속적인 WebSocket 연결을 만든다. B는 그 연결로 명령을 보낸다. 따라서 A의 IP나 수신 포트를 B에 등록하지 않는다. A의 HTTP 서버는 `127.0.0.1`에만 열고 브라우저는 같은 PC에서 접속한다.
+Hub는 선택한 게임을 `sbox://launch?app=게임ID` URI로 내부 서비스에 전달한다. Hub에서 PC B HTTP를 함께 호출하지 않는다. 위 서비스 이후의 경로는 별도 담당자가 구현한다. PC B는 기존대로 명령 당시 연결된 모든 A에 전달한다.
 
-S Box 페이지는 약 2.4초의 부팅 화면을 표시하며 그동안에도 로컬 SSE를 구독한다. 부팅 후에는 가장 마지막 앱 상태에 맞춰 홈 또는 게임 로딩 화면을 연다. 부팅과 게임 로딩은 시각 효과이며 서버의 명령 처리 응답을 지연시키지 않는다.
+AppControl 접수, PC 명령 전달과 실제 화면/HDMI 완료는 각각 다른 단계다. Hub는 접수 뒤 자동 종료하지 않으며 Back으로 종료할 수 있다.
 
-PC B에는 사설망에서 접근할 IP 하나가 필요하다. TV와 PC C는 그 주소로 HTTP 요청을 보내고, 모든 A도 같은 B 주소를 입력한다. A와 B를 같은 PC에 실행할 때는 B 주소에 `127.0.0.1`을 넣는다. B의 실제 수신 포트 기본값은 `4100`, A 브라우저의 로컬 포트는 `4101`이다.
-
-## 기존 게임 WGT 실행
+## 공개 웹 미리보기
 
 ```mermaid
 sequenceDiagram
-    participant W as TV 게임 WGT
-    participant S as C# TV 내부 서비스
-    participant B as PC B
-    participant A as 연결된 모든 PC A
-    participant UI as 각 A의 브라우저
-    A->>B: WebSocket 연결 유지
-    UI->>A: 로컬 SSE 구독
-    W->>B: POST /launch, app ID
-    W->>S: App Control activate_hdmi (데이터 없음)
-    par 게임 화면 전환
-        B->>A: launch, requestId, app
-        A->>UI: SSE 앱 전환 이벤트
-        A-->>B: launch-result
-        B-->>W: 전체 처리 개수와 실패 개수
-    and TV 입력 활성화
-        S->>S: 콘솔 연결 대상 확인, CEC wake 시도, HDMI 입력 활성화
-    end
-    Note over W,S: App Control 호출 콜백은 HDMI 완료를 뜻하지 않음
-    W->>W: 양쪽 호출 콜백 완료 후 자체 종료 (최대 대기 7초)
+    participant H as gaminghub.dev.readiz.com
+    participant C as Hub가 연 sbox.dev.readiz.com 탭
+    H->>C: 새 창 열기, 임의 연결 토큰
+    C-->>H: 준비됨
+    H->>C: 선택한 게임의 URI와 요청 ID
+    C->>C: 출처, 창, 토큰과 게임 검증
+    C-->>H: 요청 접수
+    C->>C: S Box 부팅 후 모의 로딩과 게임 타이틀
 ```
 
-HTTP와 App Control은 독립적으로 시작한다. 어느 한쪽 실패가 다른 쪽 실행을 막지 않는다. WGT는 서비스의 완료 reply를 기다리지 않는다. 내부 서비스는 WGT가 종료되어도 HDMI 작업을 계속해야 한다.
+Hub가 연 창과만 `postMessage`를 교환한다. 서버 공유 상태, 공개 WebSocket이나 원격 명령 API를 만들지 않는다. 각 방문자와 창 쌍은 독립적이다. 같은 요청 ID는 중복 적용하지 않는다. 접수 응답은 게임 로딩과 렌더링 완료 응답이 아니다.
 
-## 여러 콘솔과 연결 복구
+## 로컬 브라우저 데모와 PC 명령
 
-- B는 HTTP 요청을 받은 시점의 연결 목록에 같은 명령을 보낸다. 이후 접속한 A는 이전 명령을 받지 않는다.
-- A의 성공 응답은 로컬 브라우저 연결에 전환 이벤트를 썼다는 뜻이다. 화면 렌더링이나 HDMI 완료 확인이 아니다.
-- 일부 A가 실패해도 다른 A에는 계속 전달한다. HTTP 응답으로 성공/실패 개수를 확인한다.
-- B가 재시작되면 A가 자동 재연결한다. 재연결 후에는 새 요청부터 받으며 과거 요청을 재전송하지 않는다.
-- 같은 B에 연결된 A들은 원격 요청 시 같은 게임으로 바뀐다. A의 키보드 조작과 홈 복귀는 해당 A만 바꾼다.
+`npm run dev`의 Hub는 PC B HTTP를 사용해 AppControl 이후 전달을 모의한다. S Box는 기존대로 B에 WebSocket 연결을 시작하고 로컬 브라우저에 SSE를 보낸다. 실제 WGT의 AppControl과 이 브라우저 경로를 혼동하지 않는다.
 
-세부 시간 제한과 메시지는 [통신 인터페이스](api.md)에 정리되어 있다.
+B의 재시작 뒤 A가 재연결한다. 끊긴 동안의 명령은 저장하거나 재생하지 않는다. A 자체 홈의 키보드 조작은 해당 A만 변경한다. 로딩 중 새 명령은 이전 타이머를 취소하고 마지막 게임을 표시한다.
 
-## Gaming Hub Clone 추가 요구사항
-
-TV에 별도 Hub WGT 한 개를 추가하고, 연결된 S Box의 기존 세 게임을 카드로 보여 준다. S Box 자체 홈에 직접 접근하는 경로도 유지한다.
-
-```mermaid
-flowchart LR
-    H[Gaming Hub Clone WGT] --> G[기존 세 게임 중 선택]
-    G -->|게임 딥링크를 담은 AppControl| S[기존 TV 내부 서비스]
-    S --> D[별도 담당: 딥링크 전달과 S Box 연결, HDMI 처리]
-```
-
-이 흐름은 요구사항이며 현재 구현되지 않았다. Hub에서 PC B HTTP와 기존 게임 WGT를 추가 호출하지 않는다. 내부 서비스 이후의 경로는 서비스 담당자가 구현한다. 기존의 데이터 없는 HDMI 활성화 요청과 구분하며, Hub의 operation과 딥링크 형식은 연동 전에 확정한다. 화면과 입력, 패키지와 수용 조건은 [Hub 요구사항](gaming-hub.md)에 있다.
-
-## 향후 PC C
-
-PC C는 `POST http://B주소:4100/launch`에 게임 ID만 보내면 된다. B가 모든 A에 같은 명령을 전달하므로 C는 A 주소나 연결 목록을 관리하지 않는다. 현재 구현 범위는 이 인터페이스까지이며 별도의 C 리모컨 UI는 포함하지 않는다.
-
-[실행 가이드](setup.md) | [콘솔 요구사항](console.md) | [C# 서비스 명세](tv-service.md) | [문서 안내](README.md)
+[Hub 요구사항](gaming-hub.md) | [PC API](api.md) | [서비스 인계](tv-service.md)

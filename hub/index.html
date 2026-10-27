@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gaming Hub</title><link rel="icon" href="assets/brand/gaming-hub.svg"><link rel="stylesheet" href="hub.css">
+</head>
+<body>
+  <main class="hub" id="hub">
+    <img class="backdrop" id="hero-art" alt=""><div class="shade"></div>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Gaming Hub 홈"><img src="assets/brand/gaming-hub.svg" alt="" width="30" height="30"><span>Gaming Hub</span></a>
+      <nav class="top-nav" aria-label="탐색">
+        <button class="nav-button" id="nav-home" title="홈" aria-label="홈"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8M5 9v12h5v-7h4v7h5V9"/></svg></button>
+        <button class="nav-button active" id="nav-games" title="게임" aria-label="게임" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 6h10c2 0 3 1 4 5l1 6c0 3-3 4-5 1l-2-2H9l-2 2c-2 3-5 2-5-1l1-6c1-4 2-5 4-5Z"/><path d="M7 9v6m-3-3h6m6-2h.1m3 3h.1"/></svg><span>Games</span></button>
+        <button class="nav-button" id="nav-console" title="S Box" aria-label="S Box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M9 21h6m-3-4v4"/></svg></button>
+      </nav>
+      <div class="utilities"><button class="icon-button" id="fullscreen" aria-label="전체화면" title="전체화면"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3H3v6m12-6h6v6M3 15v6h6m12-6v6h-6"/></svg></button><button class="icon-button" id="info" aria-label="사용 안내" title="사용 안내"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10v1"/></svg></button></div>
+    </header>
+    <section class="hero" aria-label="추천 게임">
+      <p class="eyebrow" id="hero-genre"></p><h1 id="hero-name"></h1><p class="description" id="hero-description"></p>
+      <button class="play-button" id="play">지금 플레이 <span aria-hidden="true">↗</span></button>
+    </section>
+    <div class="hub-signature"><img src="assets/brand/gaming-hub.svg" alt="" width="24" height="24"> Gaming Hub</div>
+    <section class="games-section" aria-labelledby="games-title"><div class="section-heading"><h2 id="games-title">S Box의 게임</h2><span id="edition">Gaming Hub</span></div><div id="games" class="games" role="group" aria-label="게임 선택"></div></section>
+    <footer class="bottom-bar"><button id="console" class="console-button" title="S Box"><img src="assets/brand/s-box.svg" alt="" width="42" height="42"><span><strong>S Box</strong><small>콘솔</small></span><span class="console-arrow" aria-hidden="true">↗</span></button><p class="key-hint"><kbd>←</kbd><kbd>→</kbd> 선택 <kbd>Enter</kbd> 실행</p></footer>
+  </main>
+  <div class="toast" id="status" role="status" aria-live="polite" hidden></div>
+  <section class="info-panel" id="info-panel" role="dialog" aria-modal="true" aria-labelledby="info-title" hidden><button id="info-close" class="icon-button close" aria-label="닫기">×</button><h2 id="info-title">Gaming Hub</h2><p id="info-copy"></p><p>방향키로 게임을 고르고 확인 키로 실행하세요.</p><p id="browser-help" hidden>S Box 버튼으로 연결한 콘솔 창에서 게임 전환을 확인할 수 있습니다.</p><button id="info-ok" class="play-button">확인</button></section>
+  <script src="apps.js"></script><script src="hub-config.js"></script><script type="module" src="hub.js"></script>
+</body>
+</html>

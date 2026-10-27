@@ -7,7 +7,7 @@ export async function loadConfig() {
   const defaults = JSON.parse(await readFile(path.join(root, 'config.json'), 'utf8'));
   try {
     const local = JSON.parse(await readFile(path.join(root, 'config.local.json'), 'utf8'));
-    return { ...defaults, ...local, hdmi: { ...defaults.hdmi, ...local.hdmi } };
+    return { ...defaults, ...local, hub: { ...defaults.hub, ...local.hub } };
   } catch (error) {
     if (error.code !== 'ENOENT') throw error;
     return defaults;

@@ -1,11 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
+import { readFile,mkdtemp,rm,mkdir,writeFile,readdir } from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import { apps, root } from '../src/config.mjs';
 import { createServer, listen } from '../src/server.mjs';
+import { buildTv } from '../scripts/build-tv.mjs';
+import { defaultControl,hubIdentity } from '../hub/contract.mjs';
+import { crc32 } from '../scripts/zip.mjs';
 
 function entries(zip) {
   const files = new Map(); let offset = 0;
@@ -13,23 +15,22 @@ function entries(zip) {
     const length = zip.readUInt32LE(offset + 18), nameLength = zip.readUInt16LE(offset + 26), extraLength = zip.readUInt16LE(offset + 28);
     const start = offset + 30 + nameLength + extraLength;
     const name = zip.subarray(offset + 30, offset + 30 + nameLength).toString();
+    assert.equal(crc32(zip.subarray(start,start+length)),zip.readUInt32LE(offset+14));
     files.set(name, zip.subarray(start, start + length)); offset = start + length;
   }
   return files;
 }
-test('all WGTs carry the named game and its distinct 117px installation icon', async () => {
-  await promisify(execFile)(process.execPath, ['scripts/build-tv.mjs'], { cwd: root });
-  const icons = [];
-  for (const app of apps) {
-    const files = entries(await readFile(path.join(root, 'dist/unsigned', `game-${app.key}.wgt`)));
-    assert.match(files.get('config.xml').toString(), new RegExp(`<name>${app.name}</name>`));
-    assert.match(files.get('config.xml').toString(), /<icon src="icon.png"\/>/);
-    const icon = files.get('icon.png');
-    assert.equal(icon.readUInt32BE(16), 117); assert.equal(icon.readUInt32BE(20), 117);
-    assert.deepEqual(icon, await readFile(path.join(root, app.icon.slice(1).replace('/icon.png', '/icon-117.png'))));
-    icons.push(icon.toString('base64'));
-  }
-  assert.equal(new Set(icons).size, 3);
+test('one offline Hub WGT replaces old artifacts and excludes local secrets',async t=>{
+  const outputRoot=await mkdtemp(path.join(os.tmpdir(),'hub-wgt-'));t.after(()=>rm(outputRoot,{recursive:true,force:true}));
+  await mkdir(path.join(outputRoot,'dist/unsigned'),{recursive:true});
+  for(const name of ['game-a.wgt','game-b.wgt','game-c.wgt','keep.wgt'])await writeFile(path.join(outputRoot,'dist/unsigned',name),'fixture');
+  const wgt=await buildTv({outputRoot,config:{pcBUrl:'http://private.invalid',consoleToken:'secret-console-token',hub:{...defaultControl,extra:'private-extra'}}});
+  assert.deepEqual((await readdir(path.join(outputRoot,'dist/unsigned'))).sort(),['gaming-hub.wgt','keep.wgt']);
+  const files=entries(await readFile(wgt)),xml=files.get('config.xml').toString();
+  assert.ok(xml.includes(hubIdentity.id));assert.match(xml,/<name>Gaming Hub<\/name>/);assert.doesNotMatch(xml,/privilege\/internet|<access/);
+  const icon=files.get('icon.png');assert.equal(icon.readUInt32BE(16),117);assert.equal(icon.readUInt32BE(20),117);
+  for(const [name,data]of files){assert.ok(!name.startsWith('/'));assert.doesNotMatch(data.toString(),/secret-console-token|private-extra|private.invalid/);}
+  assert.match(files.get('hub-config.js').toString(),/"mode":"tizen"/);assert.equal([...files.keys()].filter(name=>name.endsWith('/cover.webp')).length,3);
 });
 test('console serves its brand, game artwork, and loading module with the right media type', async t => {
   const a = createServer('a', { pcBPort: 1 });

@@ -1,6 +1,6 @@
 # HTTP와 WebSocket 인터페이스
 
-TV WGT와 향후 PC C 리모컨은 PC B의 HTTP 인터페이스를 호출한다. PC A들은 B에 먼저 WebSocket으로 연결하고 명령을 기다린다. 기본 포트는 B `4100`, A 로컬 화면 `4101`이다.
+내부 서비스의 하위 명령 송신자와 로컬 브라우저 Hub 데모는 PC B의 HTTP 인터페이스를 호출한다. 실제 Gaming Hub WGT는 내부 서비스에 AppControl만 보내며 이 HTTP를 직접 호출하지 않는다. PC A들은 B에 먼저 WebSocket으로 연결하고 명령을 기다린다. 기본 포트는 B `4100`, A 로컬 화면 `4101`이다.
 
 ## PC B: 게임 전환 요청
 
@@ -77,13 +77,13 @@ A가 보내는 응답:
 {"type":"launch-result","requestId":"받은 UUID","ok":true}
 ```
 
-실패 응답은 `ok: false`와 `error` 문자열을 사용한다. `requestId`는 B가 응답 집계용으로 만들며 TV나 C가 입력할 값이 아니다. 모르는 요청, 중복 응답, 해당 요청 대상이 아닌 연결의 응답은 집계하지 않는다. 메시지는 텍스트 JSON, 최대 4 KiB다.
+실패 응답은 `ok: false`와 `error` 문자열을 사용한다. `requestId`는 B가 응답 집계용으로 만들며 명령 송신자가 입력할 값이 아니다. 모르는 요청, 중복 응답, 해당 요청 대상이 아닌 연결의 응답은 집계하지 않는다. 메시지는 텍스트 JSON, 최대 4 KiB다.
 
 - B는 15초 간격으로 WebSocket ping을 보낸다. 다음 주기까지 pong이 없으면 연결을 정리한다.
 - A는 연결 후 45초간 ping이 없으면 연결을 끊고 다시 연결한다.
 - 재연결 대기는 1, 2, 4, 8, 최대 10초다. 연결이 성공하면 대기를 초기화한다.
 - 연결이 끊긴 동안의 요청은 저장하지 않는다. B 재시작이나 A 재연결 시 과거 명령을 재생하지 않는다.
-- 선택적으로 A/B의 `config.local.json`에 같은 `consoleToken`을 설정하면 WebSocket 연결 시 `Authorization: Bearer ...`를 확인한다. 값이 비어 있으면 확인하지 않는다. 이 설정은 HTTP 요청을 보호하지 않으며 WGT에는 포함하지 않는다.
+- 선택적으로 A/B의 `config.local.json`에 같은 `consoleToken`을 설정하면 WebSocket 연결 시 `Authorization: Bearer ...`를 확인한다. 값이 비어 있으면 확인하지 않는다. 이 설정은 HTTP 요청을 보호하지 않으며 Hub WGT에는 포함하지 않는다.
 
 지속 연결과 heartbeat에는 [ws 공식 라이브러리](https://github.com/websockets/ws)를 사용한다. 기본 구성은 사설망 데모이며 인터넷 공개용 인증/TLS 서버는 범위에 포함하지 않는다.
 
