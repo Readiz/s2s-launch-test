@@ -5,6 +5,7 @@
   <title>Gaming Hub</title><link rel="icon" href="assets/brand/gaming-hub.svg"><link rel="stylesheet" href="hub.css">
 </head>
 <body>
+  <div class="screen-frame" id="screen-frame">
   <main class="hub" id="hub">
     <img class="backdrop" id="hero-art" alt=""><div class="shade"></div>
     <header class="topbar">
@@ -18,10 +19,10 @@
     </header>
     <section class="hero" aria-label="추천 게임">
       <p class="eyebrow" id="hero-genre"></p><h1 id="hero-name"></h1><p class="description" id="hero-description"></p>
-      <button class="play-button" id="play">지금 플레이 <span aria-hidden="true">↗</span></button>
+      <button class="play-button" id="play">PLAY NOW <span aria-hidden="true">↗</span></button>
     </section>
-    <div class="hub-signature"><img src="assets/brand/gaming-hub.svg" alt="" width="24" height="24"> Gaming Hub</div>
-    <section class="games-section" aria-labelledby="games-title"><div class="section-heading"><h2 id="games-title">추천 게임</h2><span id="edition">Gaming Hub</span></div><div id="games" class="games" role="group" aria-label="게임 선택"></div></section>
+    <div class="hub-signature"><img src="assets/brand/gaming-hub.svg" alt="" width="24" height="24"> S Box Gaming Hub</div>
+    <section class="games-section" aria-labelledby="games-title"><div class="section-heading"><h2 id="games-title">Recommended for you</h2><span id="edition">Gaming Hub</span></div><div id="games" class="games" role="group" aria-label="게임 선택"></div></section>
     <footer class="bottom-bar">
       <nav class="launcher" aria-label="앱 런처">
         <div id="launcher-games" class="launcher-games" role="group" aria-label="게임 아이콘"></div>
@@ -35,6 +36,7 @@
   </main>
   <div class="toast" id="status" role="status" aria-live="polite" hidden></div>
   <section class="info-panel" id="info-panel" role="dialog" aria-modal="true" aria-labelledby="info-title" hidden><button id="info-close" class="icon-button close" aria-label="닫기">×</button><h2 id="info-title">Gaming Hub</h2><p id="info-copy"></p><p>방향키로 게임을 고르고 확인 키로 실행하세요.</p><p id="browser-help" hidden>S Box 버튼으로 연결한 콘솔 창에서 게임 전환을 확인할 수 있습니다.</p><button id="info-ok" class="play-button">확인</button></section>
+  </div>
   <script src="apps.js"></script><script src="hub-config.js"></script><script type="module" src="hub.js"></script>
 </body>
 </html>

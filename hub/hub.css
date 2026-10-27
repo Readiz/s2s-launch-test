@@ -2,13 +2,17 @@
   color-scheme: dark;
   font-family: Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
   color: #fff;
-  background: #100d21;
+  background: #070610;
 }
 * {
   box-sizing: border-box;
 }
+html,
 body {
   margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 button,
 a {
@@ -25,72 +29,85 @@ button:disabled {
 button:focus,
 a:focus {
   outline: 3px solid #fff;
-  outline-offset: 5px;
+  outline-offset: 6px;
 }
 [hidden] {
   display: none !important;
 }
+.screen-frame {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+  overflow: hidden;
+  visibility: hidden;
+  background: #1c0c27;
+}
+.screen-frame[data-ready="true"] {
+  visibility: visible;
+}
 .hub {
   position: relative;
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  background: #140c24;
+  background: #1c0c27;
 }
 .backdrop {
   position: absolute;
-  top: 0;
   left: 0;
-  width: 100%;
-  height: 79vh;
+  top: 0;
+  width: 1920px;
+  height: 660px;
   object-fit: cover;
-  object-position: center 40%;
-  transition:
-    opacity 0.35s,
-    transform 0.7s;
-  transform: scale(1.025);
+  object-position: center 42%;
 }
 .shade {
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
   right: 0;
-  height: 100%;
+  bottom: 0;
   background:
-    linear-gradient(90deg, rgba(8, 12, 28, 0.78), rgba(10, 8, 25, 0.06) 70%),
     linear-gradient(
-      0deg,
-      #140c24 12%,
-      rgba(20, 12, 36, 0.95) 26%,
-      transparent 65%,
-      rgba(7, 10, 25, 0.28)
-    );
+      180deg,
+      #07102638 0%,
+      transparent 30%,
+      #1c0c2750 40%,
+      #1c0c27 55%
+    ),
+    linear-gradient(90deg, #08152b80, transparent 40%, #16082055);
 }
 .topbar {
-  position: relative;
-  height: 14vh;
-  min-height: 84px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  padding: 4vh 6vw 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 170px;
   z-index: 2;
 }
 .brand {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: #fff;
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: -0.5px;
+  position: absolute;
+  left: 72px;
+  top: 38px;
+  display: block;
+  border-radius: 50%;
 }
 .brand img {
-  margin-right: 10px;
+  display: block;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+}
+.brand span {
+  display: none;
 }
 .top-nav {
   position: absolute;
-  top: 3.7vh;
-  left: 50%;
+  left: 990px;
+  top: 46px;
   transform: translateX(-50%);
   display: flex;
   align-items: flex-start;
@@ -100,37 +117,53 @@ a:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  padding: 6px;
   border: 0;
   border-radius: 8px;
-  padding: 6px;
-  position: relative;
+  background: transparent;
 }
 .nav-button {
-  width: 46px;
+  position: relative;
+  width: 64px;
+  height: 60px;
+  margin: 0 14px;
+  opacity: 0.75;
+}
+.nav-button svg {
+  width: 38px;
   height: 38px;
-  margin: 0 10px;
-  opacity: 0.7;
+}
+.nav-button span {
+  position: absolute;
+  top: 78px;
+  font-size: 20px;
+  letter-spacing: 0.3px;
 }
 .nav-button:hover,
 .nav-button:focus {
   opacity: 1;
 }
-.nav-button svg {
-  width: 25px;
-  height: 25px;
-}
-.nav-button span {
-  position: absolute;
-  top: 48px;
-  font-size: 12px;
-  letter-spacing: 0.3px;
-}
 .nav-button.active {
-  color: #dc9aff;
-  background: rgba(174, 77, 251, 0.19);
+  color: #df94ff;
+  background: #ae4dfb30;
   opacity: 1;
-  box-shadow: 0 0 24px rgba(170, 60, 255, 0.25);
+  box-shadow: 0 0 28px #aa3cff40;
+}
+.utilities {
+  position: absolute;
+  left: 156px;
+  top: 49px;
+  display: flex;
+}
+.icon-button {
+  width: 34px;
+  height: 34px;
+  margin-left: 25px;
+  opacity: 0.8;
+}
+.icon-button svg {
+  width: 28px;
+  height: 28px;
 }
 svg {
   fill: none;
@@ -139,184 +172,169 @@ svg {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.utilities {
-  display: flex;
-}
-.icon-button {
-  width: 28px;
-  height: 28px;
-  margin-left: 12px;
-  opacity: 0.8;
-}
-.icon-button svg {
-  width: 19px;
-  height: 19px;
-}
 .hero {
-  position: relative;
-  margin: 5vh 6vw 0;
-  height: 33vh;
-  max-width: 650px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 550px;
 }
-.eyebrow {
-  text-transform: uppercase;
-  color: #dfc8ff;
-  letter-spacing: 4px;
-  font-size: 12px;
-  margin: 0 0 12px;
-  font-weight: 700;
+.eyebrow,
+.description {
+  display: none;
 }
 .hero h1 {
-  font-size: 6vw;
-  line-height: 0.97;
-  max-width: 650px;
-  letter-spacing: -0.055em;
+  position: absolute;
+  top: 228px;
+  left: 460px;
+  width: 1000px;
   margin: 0;
-  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-}
-.description {
-  font-size: 15px;
-  line-height: 1.5;
-  color: #e4dce9;
-  margin: 18px 0 20px;
+  text-align: center;
+  font-size: 132px;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: -5px;
+  text-transform: uppercase;
+  text-shadow: 0 4px 35px #04071970;
 }
 .play-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  height: 36px;
+  border: 2px solid #ffffff80;
   border-radius: 6px;
-  padding: 6px 12px;
-  background: rgba(16, 12, 28, 0.5);
-  font-size: 12px;
+  padding: 0 13px;
+  background: #080c1f80;
+  font-size: 14px;
   font-weight: 700;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
+}
+.hero .play-button {
+  position: absolute;
+  left: 180px;
+  top: 330px;
 }
 .play-button:hover {
   background: #fff;
   color: #181023;
 }
 .play-button span {
-  margin-left: 18px;
+  display: none;
 }
 .hub-signature {
   position: absolute;
-  right: 6vw;
-  top: 46vh;
+  left: 1548px;
+  top: 497px;
   display: flex;
   align-items: center;
   font-weight: 700;
-  font-size: 16px;
-  text-shadow: 0 2px 12px #111;
+  font-size: 25px;
+  text-shadow: 0 2px 14px #111;
+  white-space: nowrap;
 }
 .hub-signature img {
-  margin-right: 8px;
+  width: 38px;
+  height: 38px;
+  margin-right: 12px;
 }
 .games-section {
-  position: relative;
-  margin: 1.8vh 6vw 0;
+  position: absolute;
+  left: 86px;
+  top: 538px;
+  width: 1834px;
 }
 .section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 13px;
+  height: 48px;
 }
 .section-heading h2 {
-  font-size: 15px;
-  font-weight: 500;
-  color: #e9deed;
   margin: 0;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 400;
+  color: #e9deed;
 }
-.section-heading > span {
-  color: #b8a5c5;
-  font-size: 10px;
-  letter-spacing: 1px;
+#edition {
+  display: none;
 }
 .games {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-gap: 2vw;
+  display: flex;
+  align-items: flex-start;
+}
+.games > * + * {
+  margin-left: 40px;
 }
 .game-card {
   position: relative;
-  height: 21vh;
-  min-height: 130px;
-  max-height: 250px;
-  overflow: hidden;
+  flex: 0 0 448px;
+  width: 448px;
+  height: 252px;
   padding: 0;
+  overflow: hidden;
   border: 0;
-  border-radius: 13px;
+  border-radius: 26px;
   text-align: left;
   background: #201b30;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.16);
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  box-shadow: 0 8px 25px #0003;
+  transition: box-shadow 0.2s;
   outline: 0;
 }
 .game-card > img {
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s;
+  transition: transform 0.35s;
 }
 .card-shade {
   position: absolute;
-  top: 0;
   left: 0;
+  top: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(0deg, rgba(8, 10, 22, 0.92), transparent 80%);
+  background: linear-gradient(180deg, #080a1650, transparent 72%);
 }
 .card-copy {
   position: absolute;
-  left: 16px;
-  right: 12px;
-  bottom: 15px;
-  display: flex;
-  align-items: center;
+  left: 24px;
+  top: 24px;
+  right: 24px;
 }
-.card-copy img {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  margin-right: 10px;
+.card-copy img,
+.card-copy small {
+  display: none;
 }
 .card-copy strong {
-  font-size: 17px;
-  letter-spacing: -0.5px;
-}
-.card-copy small {
   display: block;
-  font-size: 9px;
-  letter-spacing: 1.5px;
-  color: #ddd3e3;
-  margin-top: 4px;
+  max-width: 390px;
+  color: #fff;
+  font-size: 44px;
+  line-height: 0.98;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 12px #0008;
 }
 .game-card.selected {
   box-shadow:
-    0 0 0 1px rgba(230, 200, 255, 0.55),
+    0 0 0 1px #e6c8ff60,
     0 8px 25px #0003;
 }
-.game-card:hover > img,
-.game-card.selected > img {
-  transform: scale(1.04);
+.game-card:hover > img {
+  transform: scale(1.035);
 }
 .game-card:focus {
-  outline: 3px solid #fff;
-  outline-offset: 3px;
+  outline: 4px solid #fff;
+  outline-offset: 6px;
 }
 .bottom-bar {
-  position: relative;
-  margin: 3vh 6vw 2.5vh;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  position: absolute;
+  left: 86px;
+  right: 86px;
+  top: 886px;
+  height: 160px;
 }
 .launcher,
 .launcher-games {
@@ -324,26 +342,23 @@ svg {
   align-items: flex-start;
 }
 .launcher-games > * + * {
-  margin-left: 18px;
+  margin-left: 36px;
 }
 .launcher-item {
-  width: 100px;
+  position: relative;
+  width: 112px;
+  padding: 0;
   border: 0;
-  padding: 5px 0 0;
   background: transparent;
   text-align: center;
 }
 .launcher-icon {
   display: block;
-  width: 8vh;
-  height: 8vh;
-  min-width: 64px;
-  min-height: 64px;
-  max-width: 88px;
-  max-height: 88px;
-  margin: 0 auto;
-  border-radius: 20%;
-  background: rgba(255, 255, 255, 0.08);
+  width: 112px;
+  height: 112px;
+  margin: 0;
+  border-radius: 26%;
+  background: #ffffff14;
   box-shadow: 0 6px 20px #0004;
   transition:
     transform 0.18s,
@@ -358,14 +373,19 @@ svg {
 }
 .launcher-name {
   display: block;
-  margin: 10px 0 0;
-  min-height: 25px;
-  font-size: 11px;
-  line-height: 1.25;
+  position: absolute;
+  top: 126px;
+  left: -20px;
+  right: -20px;
+  font-size: 17px;
+  line-height: 22px;
   color: #c8bbd3;
+  visibility: hidden;
+  white-space: nowrap;
 }
-.launcher-item.selected .launcher-name,
-.launcher-item:focus .launcher-name {
+.launcher-item:focus .launcher-name,
+.launcher-item:hover .launcher-name {
+  visibility: visible;
   color: #fff;
 }
 .launcher-item.selected .launcher-icon {
@@ -374,12 +394,12 @@ svg {
     0 8px 20px #0005;
 }
 .launcher-item:focus {
-  outline: none;
+  outline: 0;
 }
 .launcher-item:focus .launcher-icon {
-  outline: 3px solid #fff;
-  outline-offset: 5px;
-  transform: translateY(-3px) scale(1.04);
+  outline: 4px solid #fff;
+  outline-offset: 7px;
+  transform: translateY(-3px);
   box-shadow: 0 10px 24px #0006;
 }
 .launcher-item:hover .launcher-icon {
@@ -387,37 +407,28 @@ svg {
 }
 .launcher-divider {
   width: 1px;
-  height: 48px;
+  height: 68px;
   background: #ffffff29;
-  margin: 14px 18px 0;
+  margin: 22px 28px 0;
 }
 .console-launcher .launcher-icon {
+  padding: 18px;
   background: #ffffff0c;
-  padding: 10px;
 }
 .key-hint {
-  font-size: 11px;
-  color: #b4a7bf;
-}
-.key-hint kbd {
-  display: inline-block;
-  padding: 3px 5px;
-  border: 1px solid #66546f;
-  border-radius: 4px;
-  font: 10px Arial;
-  margin: 0 3px 0 8px;
+  display: none;
 }
 .toast {
-  position: fixed;
-  bottom: 4vh;
+  position: absolute;
   left: 50%;
+  bottom: 185px;
   transform: translateX(-50%);
-  max-width: 90vw;
-  padding: 11px 18px;
+  max-width: 1200px;
+  padding: 15px 24px;
   background: #242035;
   border: 1px solid #63527c;
-  border-radius: 9px;
-  font-size: 13px;
+  border-radius: 12px;
+  font-size: 20px;
   z-index: 5;
   box-shadow: 0 8px 40px #0006;
 }
@@ -425,161 +436,45 @@ svg {
   border-color: #ed9c96;
 }
 .info-panel {
-  position: fixed;
+  position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  width: 400px;
-  max-width: 90vw;
-  padding: 28px;
+  width: 600px;
+  padding: 40px;
   background: #211b31;
   border: 1px solid #6c5980;
-  border-radius: 16px;
-  box-shadow: 0 0 0 100vmax #090613b8;
+  border-radius: 22px;
+  box-shadow: 0 0 0 2000px #090613b8;
   z-index: 6;
 }
 .info-panel h2 {
-  font-size: 21px;
-  margin: 0 0 20px;
+  font-size: 32px;
+  margin: 0 0 26px;
 }
 .info-panel p {
-  font-size: 13px;
-  line-height: 1.7;
+  font-size: 20px;
+  line-height: 1.65;
   color: #ddd0e8;
 }
 .info-panel .close {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 24px;
+  top: 18px;
+  right: 18px;
+  font-size: 32px;
 }
 .info-panel .play-button {
-  margin-top: 10px;
+  margin-top: 14px;
+  height: 42px;
+  font-size: 18px;
 }
 .hub[aria-busy="true"] .play-button,
 .hub[aria-busy="true"] .game-card,
 .hub[aria-busy="true"] .launcher-item {
   opacity: 0.7;
 }
-@media (min-width: 1600px) {
-  .hero h1 {
-    font-size: 96px;
-  }
-  .description {
-    font-size: 19px;
-  }
-  .game-card .card-copy strong {
-    font-size: 23px;
-  }
-  .card-copy img {
-    width: 46px;
-    height: 46px;
-  }
-  .section-heading h2 {
-    font-size: 19px;
-  }
-  .brand {
-    font-size: 21px;
-  }
-}
-@media (max-width: 700px) {
-  .topbar {
-    padding: 25px 6vw 0;
-    height: 125px;
-  }
-  .brand span {
-    font-size: 15px;
-  }
-  .top-nav {
-    top: 75px;
-  }
-  .nav-button {
-    width: 32px;
-    height: 27px;
-    margin: 0 9px;
-  }
-  .nav-button span {
-    display: none;
-  }
-  .utilities .icon-button {
-    margin-left: 6px;
-  }
-  .hero {
-    height: 260px;
-    margin: 20px 6vw 0;
-  }
-  .hero h1 {
-    font-size: 54px;
-  }
-  .description {
-    font-size: 13px;
-    max-width: 250px;
-  }
-  .hub-signature {
-    display: none;
-  }
-  .backdrop {
-    height: 570px;
-    object-position: 60% center;
-  }
-  .shade {
-    background:
-      linear-gradient(90deg, #0a0c1acc, transparent),
-      linear-gradient(0deg, #140c24 8%, transparent 100%);
-  }
-  .games-section {
-    margin-top: 0;
-  }
-  .section-heading h2 {
-    font-size: 13px;
-  }
-  .games {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-gap: 10px;
-  }
-  .game-card {
-    height: 100px;
-    min-height: 100px;
-  }
-  .game-card .card-copy {
-    display: none;
-  }
-  .launcher-games > * + * {
-    margin-left: 8px;
-  }
-  .launcher-item {
-    width: 64px;
-  }
-  .launcher-icon {
-    width: 52px;
-    height: 52px;
-    min-width: 52px;
-    min-height: 52px;
-  }
-  .launcher-name {
-    font-size: 10px;
-    min-height: 25px;
-  }
-  .launcher-divider {
-    margin: 10px 8px 0;
-    height: 40px;
-  }
-  .console-launcher .launcher-icon {
-    padding: 8px;
-  }
-  .game-card .card-copy strong {
-    font-size: 20px;
-  }
-  .bottom-bar {
-    margin-top: 24px;
-  }
-  .key-hint {
-    display: none;
-  }
-  .hub {
-    min-height: 100vh;
-    padding-bottom: 14px;
-  }
+body.info-open .hub {
+  pointer-events: none;
 }
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -587,10 +482,5 @@ svg {
   *:after {
     transition: none !important;
     animation: none !important;
-    scroll-behavior: auto !important;
   }
-}
-
-body.info-open .hub {
-  pointer-events: none;
 }

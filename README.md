@@ -9,7 +9,7 @@ TV 런처 **Gaming Hub**와 PC 콘솔 **S Box**를 재현하는 독립 데모다
 
 ![Gaming Hub 구현 화면](docs/screenshots/gaming-hub.jpg)
 
-기존 Apex Racing, Forest Quest, Orbit Arena 자산을 사용한다.
+기존 Apex Racing, Forest Quest, Orbit Arena 자산을 사용한다. 화면은 FHD 1920×1080 비율을 기준으로 고정하고 상하 여백 안에 같은 비율로 맞춘다.
 
 ## 웹으로 두 화면 검토
 

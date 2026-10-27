@@ -1,6 +1,8 @@
 import { createHubLauncher } from "./launch.mjs";
 import { remoteKey, remoteDestination } from "./remote.mjs";
+import { mountViewport } from "./viewport.mjs";
 const $ = (id) => document.getElementById(id);
+mountViewport($("screen-frame"));
 const apps = window.DEMO_APPS,
   config = window.HUB_CONFIG;
 const launcher = createHubLauncher(config, apps);

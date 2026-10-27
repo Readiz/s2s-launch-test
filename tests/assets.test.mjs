@@ -31,6 +31,7 @@ test('one offline Hub WGT replaces old artifacts and excludes local secrets',asy
   const icon=files.get('icon.png');assert.equal(icon.readUInt32BE(16),117);assert.equal(icon.readUInt32BE(20),117);
   for(const [name,data]of files){assert.ok(!name.startsWith('/'));assert.doesNotMatch(data.toString(),/secret-console-token|private-extra|private.invalid/);}
   assert.ok(files.has('remote.mjs'),'WGT must include remote input module');
+  assert.ok(files.has('viewport.mjs'),'WGT must include fixed-resolution viewport module');
   assert.match(files.get('hub-config.js').toString(),/"mode":"tizen"/);assert.equal([...files.keys()].filter(name=>name.endsWith('/cover.webp')).length,3);
 });
 test('console serves its brand, game artwork, and loading module with the right media type', async t => {
@@ -54,7 +55,7 @@ test('local Hub serves the icon launcher and its remote input module',async t=>{
   const server=createServer('b',{});const address=await listen(server,0,'127.0.0.1');t.after(()=>server.shutdown());
   const base=`http://127.0.0.1:${address.port}`;
   const html=await (await fetch(base+'/')).text();assert.match(html,/id="launcher-games"/);
-  for(const name of ['hub.js','remote.mjs']){
+  for(const name of ['hub.js','remote.mjs','viewport.mjs']){
     const response=await fetch(base+'/'+name);assert.equal(response.status,200);assert.match(response.headers.get('content-type'),/javascript/);
   }
 });
