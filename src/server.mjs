@@ -71,7 +71,7 @@ export function createServer(role, config, linkOptions = {}) {
       res.end(`window.DEMO_APPS = ${JSON.stringify(apps)};`);
       return;
     }
-    const hubNames = { '/':'index.html','/hub.js':'hub.js','/hub.css':'hub.css','/launch.mjs':'launch.mjs','/contract.mjs':'contract.mjs','/browser-console.mjs':'browser-console.mjs' };
+    const hubNames = { '/':'index.html','/hub.js':'hub.js','/hub.css':'hub.css','/launch.mjs':'launch.mjs','/contract.mjs':'contract.mjs','/remote.mjs':'remote.mjs','/browser-console.mjs':'browser-console.mjs' };
     if (role === 'b' && req.method === 'GET' && route === '/apps.js') {
       res.writeHead(200, {'Content-Type':'text/javascript; charset=utf-8'});
       res.end(`window.DEMO_APPS = ${JSON.stringify(apps.map(app=>({...app,art:app.art.slice(1),icon:app.icon.slice(1)})))};`); return;

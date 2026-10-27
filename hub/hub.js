@@ -1,4 +1,5 @@
 import { createHubLauncher } from "./launch.mjs";
+import { remoteKey, remoteDestination } from "./remote.mjs";
 const $ = (id) => document.getElementById(id);
 const apps = window.DEMO_APPS,
   config = window.HUB_CONFIG;
@@ -11,7 +12,7 @@ const cards = apps.map((app, index) => {
   const card = document.createElement("button");
   card.className = "game-card";
   card.type = "button";
-  card.setAttribute("aria-label", app.name + " 실행");
+  card.setAttribute("aria-label", app.name + " 추천 게임 실행");
   card.dataset.app = app.id;
   const art = document.createElement("img");
   art.src = app.art;
@@ -42,18 +43,49 @@ const cards = apps.map((app, index) => {
   $("games").append(card);
   return card;
 });
+const icons = apps.map((app, index) => {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "launcher-item";
+  button.dataset.app = app.id;
+  button.setAttribute("aria-label", app.name + " 실행");
+  button.title = app.name;
+  const art = document.createElement("span");
+  art.className = "launcher-icon";
+  const image = document.createElement("img");
+  image.src = app.icon;
+  image.alt = "";
+  image.width = image.height = 64;
+  art.append(image);
+  const name = document.createElement("span");
+  name.className = "launcher-name";
+  name.textContent = app.name;
+  button.append(art, name);
+  button.onfocus = () => {
+    if (!busy) select(index, false);
+  };
+  button.onclick = () => {
+    if (busy) return;
+    select(index, false);
+    launch();
+  };
+  $("launcher-games").append(button);
+  return button;
+});
 function select(index, focus = true) {
   selected = (index + apps.length) % apps.length;
   const app = apps[selected];
-  cards.forEach((card, i) => {
-    card.classList.toggle("selected", i === selected);
-    card.tabIndex = i === selected ? 0 : -1;
-  });
+  for (const row of [cards, icons])
+    row.forEach((item, i) => {
+      item.classList.toggle("selected", i === selected);
+      item.tabIndex = i === selected ? 0 : -1;
+      item.setAttribute("aria-current", i === selected ? "true" : "false");
+    });
   $("hero-art").src = app.art;
   $("hero-name").textContent = app.name;
   $("hero-genre").textContent = app.genre;
   $("hero-description").textContent = app.description;
-  if (focus) cards[selected].focus();
+  if (focus) icons[selected].focus();
 }
 function status(text, error = false, persist = false) {
   clearTimeout(toastTimer);
@@ -70,6 +102,7 @@ function status(text, error = false, persist = false) {
 }
 async function launch() {
   if (busy) return;
+  const launchFocus = document.activeElement;
   busy = true;
   $("hub").setAttribute("aria-busy", "true");
   status(apps[selected].name + " 실행 요청 중…", false, true);
@@ -85,7 +118,10 @@ async function launch() {
   } finally {
     busy = false;
     $("hub").setAttribute("aria-busy", "false");
-    cards[selected].focus();
+    (launchFocus && document.contains(launchFocus)
+      ? launchFocus
+      : icons[selected]
+    ).focus();
   }
 }
 function openConsole() {
@@ -115,8 +151,12 @@ function closeInfo() {
 }
 $("play").onclick = launch;
 $("console").onclick = $("nav-console").onclick = openConsole;
-$("nav-home").onclick = () => select(0);
-$("nav-games").onclick = () => select(selected);
+$("nav-home").onclick = () => {
+  if (!busy) select(0);
+};
+$("nav-games").onclick = () => {
+  if (!busy) select(selected);
+};
 $("info").onclick = showInfo;
 $("info-close").onclick = $("info-ok").onclick = closeInfo;
 $("fullscreen").onclick = () => {
@@ -135,16 +175,12 @@ $("edition").textContent =
   config.mode === "tizen" ? "S BOX GAMES" : "WEB PREVIEW";
 document.addEventListener("keydown", (event) => {
   if (event.altKey || event.ctrlKey || event.metaKey) return;
-  const key =
-    event.key ||
-    {
-      37: "ArrowLeft",
-      38: "ArrowUp",
-      39: "ArrowRight",
-      40: "ArrowDown",
-      13: "Enter",
-    }[event.keyCode];
-  const back = key === "Escape" || key === "Back" || event.keyCode === 10009;
+  const key = remoteKey(event);
+  const back = key === "Back";
+  if (key === "Enter" && event.repeat) {
+    event.preventDefault();
+    return;
+  }
   if (!$("info-panel").hidden) {
     if (back || key === "Enter") {
       event.preventDefault();
@@ -180,36 +216,20 @@ document.addEventListener("keydown", (event) => {
       "fullscreen",
       "info",
     ].map($);
-    const active = document.activeElement,
-      navIndex = navigation.indexOf(active);
-    if (key === "ArrowLeft" || key === "ArrowRight") {
-      const delta = key === "ArrowLeft" ? -1 : 1;
-      if (navIndex !== -1)
-        navigation[
-          (navIndex + delta + navigation.length) % navigation.length
-        ].focus();
-      else select(selected + delta);
-    } else if (key === "ArrowUp") {
-      if (active === $("console")) select(selected);
-      else if (active === $("play")) $("nav-games").focus();
-      else if (navIndex === -1) $("play").focus();
-    } else {
-      if (navIndex !== -1) $("play").focus();
-      else if (active === $("play")) select(selected);
-      else $("console").focus();
-    }
+    const destination = remoteDestination(
+      [navigation, [$("play")], cards, [...icons, $("console")]],
+      document.activeElement,
+      key,
+      [1, 0, selected, selected],
+    );
+    if (destination) destination.focus();
   } else if (key === "Enter") {
-    if (event.repeat) {
-      event.preventDefault();
-      return;
-    }
-    if (
-      document.activeElement === document.body ||
-      cards.includes(document.activeElement)
-    ) {
-      event.preventDefault();
-      launch();
-    }
+    event.preventDefault();
+    if (event.repeat || busy) return;
+    const active = document.activeElement;
+    if (active === document.body) launch();
+    else if (active && (active.tagName === "BUTTON" || active.tagName === "A"))
+      active.click();
   }
 });
 select(0);

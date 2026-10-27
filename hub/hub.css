@@ -241,7 +241,7 @@ svg {
 }
 .game-card {
   position: relative;
-  height: 22vh;
+  height: 21vh;
   min-height: 130px;
   max-height: 250px;
   overflow: hidden;
@@ -299,11 +299,9 @@ svg {
   margin-top: 4px;
 }
 .game-card.selected {
-  transform: scale(1.015);
   box-shadow:
-    0 0 0 3px #fff,
-    0 0 0 6px rgba(190, 120, 255, 0.25),
-    0 14px 35px rgba(0, 0, 0, 0.3);
+    0 0 0 1px rgba(230, 200, 255, 0.55),
+    0 8px 25px #0003;
 }
 .game-card:hover > img,
 .game-card.selected > img {
@@ -315,35 +313,87 @@ svg {
 }
 .bottom-bar {
   position: relative;
-  margin: 3.3vh 6vw 2.5vh;
+  margin: 3vh 6vw 2.5vh;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.console-button {
+.launcher,
+.launcher-games {
   display: flex;
-  align-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 15px;
-  padding: 9px 14px 9px 9px;
-  text-align: left;
+  align-items: flex-start;
 }
-.console-button > img {
-  margin-right: 10px;
+.launcher-games > * + * {
+  margin-left: 18px;
 }
-.console-button strong {
-  font-size: 13px;
+.launcher-item {
+  width: 100px;
+  border: 0;
+  padding: 5px 0 0;
+  background: transparent;
+  text-align: center;
 }
-.console-button small {
+.launcher-icon {
   display: block;
-  color: #b4a7c3;
-  font-size: 10px;
-  margin-top: 3px;
+  width: 8vh;
+  height: 8vh;
+  min-width: 64px;
+  min-height: 64px;
+  max-width: 88px;
+  max-height: 88px;
+  margin: 0 auto;
+  border-radius: 20%;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 6px 20px #0004;
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s;
 }
-.console-arrow {
-  margin-left: 25px;
-  color: #c9bdd7;
+.launcher-icon img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+.launcher-name {
+  display: block;
+  margin: 10px 0 0;
+  min-height: 25px;
+  font-size: 11px;
+  line-height: 1.25;
+  color: #c8bbd3;
+}
+.launcher-item.selected .launcher-name,
+.launcher-item:focus .launcher-name {
+  color: #fff;
+}
+.launcher-item.selected .launcher-icon {
+  box-shadow:
+    0 0 0 2px #c99bff,
+    0 8px 20px #0005;
+}
+.launcher-item:focus {
+  outline: none;
+}
+.launcher-item:focus .launcher-icon {
+  outline: 3px solid #fff;
+  outline-offset: 5px;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 10px 24px #0006;
+}
+.launcher-item:hover .launcher-icon {
+  transform: translateY(-3px);
+}
+.launcher-divider {
+  width: 1px;
+  height: 48px;
+  background: #ffffff29;
+  margin: 14px 18px 0;
+}
+.console-launcher .launcher-icon {
+  background: #ffffff0c;
+  padding: 10px;
 }
 .key-hint {
   font-size: 11px;
@@ -407,7 +457,8 @@ svg {
   margin-top: 10px;
 }
 .hub[aria-busy="true"] .play-button,
-.hub[aria-busy="true"] .game-card {
+.hub[aria-busy="true"] .game-card,
+.hub[aria-busy="true"] .launcher-item {
   opacity: 0.7;
 }
 @media (min-width: 1600px) {
@@ -483,11 +534,38 @@ svg {
     font-size: 13px;
   }
   .games {
-    grid-template-columns: 1fr;
-    grid-gap: 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-gap: 10px;
   }
   .game-card {
-    height: 185px;
+    height: 100px;
+    min-height: 100px;
+  }
+  .game-card .card-copy {
+    display: none;
+  }
+  .launcher-games > * + * {
+    margin-left: 8px;
+  }
+  .launcher-item {
+    width: 64px;
+  }
+  .launcher-icon {
+    width: 52px;
+    height: 52px;
+    min-width: 52px;
+    min-height: 52px;
+  }
+  .launcher-name {
+    font-size: 10px;
+    min-height: 25px;
+  }
+  .launcher-divider {
+    margin: 10px 8px 0;
+    height: 40px;
+  }
+  .console-launcher .launcher-icon {
+    padding: 8px;
   }
   .game-card .card-copy strong {
     font-size: 20px;
